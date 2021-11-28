@@ -8,3 +8,4 @@ CMakeFiles/
 .vs/
 *.dir/
 *.exe
+*.pdb
