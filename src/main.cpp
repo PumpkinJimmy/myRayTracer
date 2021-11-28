@@ -38,6 +38,7 @@ THE SOFTWARE.*/
 #include "camera.h"
 #include "material.h"
 #include "bvh.h"
+#include "aarect.h"
 
 static std::vector<std::vector<color>> gCanvas;		//Canvas
 
@@ -48,27 +49,23 @@ const int gHeight = static_cast<int>(gWidth / aspect_ratio);
 
 void rendering();
 
-color ray_color(const ray& r, const Hittable& world, int depth)
+color ray_color(const ray& r, const color& background, const Hittable& world, int depth)
 {
 	hit_record rec;
 
 	if (depth <= 0)
 		return color(0, 0, 0);
 
-	if (world.hit(r, 0.001, inf, rec)) {
-		ray scattered;
-		color attenuation;
-		if (rec.mat_ptr->scatter(r, rec, attenuation, scattered))
-			return attenuation * ray_color(scattered, world, depth - 1);
-		return color(0, 0, 0);
-		//point3 target = rec.p + rec.normal + random_unit_vector();
-		//// return vec3::random();
-		//return 0.5 * ray_color(ray(rec.p, target - rec.p), world, depth-1);
-	}
-	//return color(0, 0, 1);
-	vec3 unit_direction = unit_vector(r.direction());
-	auto t = 0.5 * (unit_direction.y() + 1.0);
-	return (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0);
+	// If the ray hits nothing, return the background color.
+	if (!world.hit(r, 0.001, inf, rec))
+		return background;
+	ray scattered;
+	color attenuation;
+	color emitted = rec.mat_ptr->emitted(rec.u, rec.v, rec.p);
+	if (!rec.mat_ptr->scatter(r, rec, attenuation, scattered))
+		return emitted;
+	return emitted + attenuation * ray_color(scattered, background, world,
+		depth - 1);
 }
 
 HittableList random_scene() {
@@ -117,11 +114,40 @@ HittableList random_scene() {
 	return world;
 }
 
+HittableList simple_light() {
+	HittableList objects;
+	auto pertext = make_shared<texture>(4);
+	objects.add(make_shared<Sphere>(point3(0, -1000, 0), 1000,
+		make_shared<Lambertian>(pertext)));
+	objects.add(make_shared<Sphere>(point3(0, 2, 0), 2, make_shared<Lambertian>
+		(pertext)));
+	auto difflight = make_shared<diffuse_light>(color(4, 4, 4));
+	objects.add(make_shared<xy_rect>(3, 5, 1, 3, -2, difflight));
+	return objects;
+}
+
+HittableList cornell_box() {
+	HittableList objects;
+	auto red = make_shared<Lambertian>(color(.65, .05, .05));
+	auto white = make_shared<Lambertian>(color(.73, .73, .73));
+	auto green = make_shared<Lambertian>(color(.12, .45, .15));
+	auto light = make_shared<diffuse_light>(color(15, 15, 15));
+	objects.add(make_shared<yz_rect>(0, 555, 0, 555, 555, green));
+	objects.add(make_shared<yz_rect>(0, 555, 0, 555, 0, red));
+	objects.add(make_shared<xz_rect>(213, 343, 227, 332, 554, light));
+	objects.add(make_shared<xz_rect>(0, 555, 0, 555, 0, white));
+	objects.add(make_shared<xz_rect>(0, 555, 0, 555, 555, white));
+	objects.add(make_shared<xy_rect>(0, 555, 0, 555, 555, white));
+	return objects;
+}
+
+
+
 
 int main(int argc, char* args[])
 {
 	// Create window app handle
-	WindowsApp::ptr winApp = WindowsApp::getInstance(gWidth, gHeight, "dengXianjie 19351023 Ray Tracing");
+	WindowsApp::ptr winApp = WindowsApp::getInstance(gWidth, gHeight, "Ray Tracing");
 	if (winApp == nullptr)
 	{
 		std::cerr << "Error: failed to create a window handler" << std::endl;
@@ -175,7 +201,7 @@ void rendering()
 {
 	double startFrame = clock();
 
-	printf("CGAssignment4 (built %s at %s) \n", __DATE__, __TIME__);
+	printf("final-term Project (built %s at %s) \n", __DATE__, __TIME__);
 	std::cout << "Ray-tracing based rendering launched..." << std::endl;
 
 	// Image
