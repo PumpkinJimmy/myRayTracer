@@ -61,6 +61,9 @@
   - `blockIdx.x/blockIdx.y`当前Block在Grid的Block“阵列”中的“位置”
   - `__syncthreads()` Block内部线程同步
 
+## 调试（待完善）
+讲道理，核函数里面居然可以printf。。。
+
 ## Vector Types（待完善）
 
 ## Thrust（待完善）
