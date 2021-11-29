@@ -9,3 +9,5 @@ CMakeFiles/
 *.dir/
 *.exe
 *.pdb
+scratch/
+.vscode/
