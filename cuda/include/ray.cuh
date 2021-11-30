@@ -11,7 +11,7 @@ public:
 	__host__ __device__ Ray(const point3& _origin, const vec3& _direction)
 	:	origin(_origin), direction(_direction) {}
 
-	point3 at(double t) const {
+	__host__ __device__  point3 at(double t) const {
 		return origin + t * direction;
 	}
 	point3 origin;

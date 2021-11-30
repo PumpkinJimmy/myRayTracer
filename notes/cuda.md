@@ -1,6 +1,7 @@
 # CUDA
 ## 架构简述
 - GPU可以看作是*允许大量进程并发*的协处理器
+- CUDA计算本质上是*异构计算*问题：在CUDA上编程必须要直接处理硬件异构问题。
 - GPU执行的代码称为*Kernel*
 - Execution：*SM, Grid, Block, Warp*
   - SM是**GPU的代码执行单元**
@@ -12,6 +13,8 @@
   - Local Memory: 线程自己的内存
   - Shared Memory: Block内线程共享的内存
   - Global Memory: 全局内存
+  - 三种内存类似三级处理器Cache，越往下越大，也越慢。
+  - 在核函数中定义的变量默认都是Register变量或者Local Memory
 - 编译单文件CUDA程序
   - `nvcc my_cuda_single.cu -o myapp`
   - 注意CUDA是C语言的超集，因此这实际上也是在编译C/C++程序
@@ -27,10 +30,22 @@
     有一个显式使用`__host__`的理由：令一个函数同时可以在函数可以在Host或者Device调用。这样可以给出兼容性。
 - 核函数的限制
   - **只能访问设备内存**
-  - **不可递归**
+  - **__global__不可递归**
   - 返回类型只能是void
   - 不支持C的可变数目参数
   - 不支持静态局部变量
+  - 不可以使用STL（但是有替代品Trust）
+  - 对非POD类的使用受限（因为内部的指针引用的内存是Host Memory）
+  - 向`__global__`传入含虚函数的类
+  - **不可使用C标准库**
+- 核函数可以
+  - 执行任何基本运算和流程控制
+  - 调用`__device__`声明的函数（**包括成员函数**）
+  - 动态分配内存（`malloc/free`或者`new/delete`）
+  - 使用部分C++特性，包括引用、虚函数
+  - 创建和使用C++类对象，并利用多态特性，使用虚函数
+  - 使用部分模板特性
+  - 使用Host的const常量（因为这些常量本质上都可以在编译中优化为硬编码的常量，与跨设备内存问题无关）
 
 ## API
 - 头文件
@@ -55,11 +70,13 @@
   - `__global__, __host__, __device__`
   - `cudaError_t` 所有API调用的统一返回类型
   - `cudaGetErrorString(error)` 返回错误信息
+  - `__device__`声明设备上的全局变量
 - Kernel API
   - `threadIdx.x/threadIdx.y`当前线程在线程“阵列”中的“位置”
   - `blockDim.x/blockDim.y`当前所在Block的Size
   - `blockIdx.x/blockIdx.y`当前Block在Grid的Block“阵列”中的“位置”
   - `__syncthreads()` Block内部线程同步
+  - 声明Shared Memory变量。
 
 ## 调试（待完善）
 讲道理，核函数里面居然可以printf。。。

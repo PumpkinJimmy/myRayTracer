@@ -5,9 +5,7 @@
 #include <vector_functions.h>
 
 #include "cutil_math.h"
-
-
-#define __VECTOR_FUNCTIONS_DECL__ static __inline__ __host__ __device__
+#include "common.cuh"
 
 typedef float3 vec3;
 
