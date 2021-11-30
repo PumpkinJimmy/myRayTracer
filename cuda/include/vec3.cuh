@@ -30,4 +30,13 @@ __VECTOR_FUNCTIONS_DECL__ vec3 unit_vector(vec3 v) {
 	 return normalize(v);
 }
 
+__VECTOR_FUNCTIONS_DECL__ float length_squared(vec3 v) {
+	return v.x * v.x + v.y * v.y + v.z * v.z;
+}
+
+__VECTOR_FUNCTIONS_DECL__ float3 operator-(float3 v) {
+	return make_float3(-v.x, -v.y, -v.z);
+}
+
+
 #endif

@@ -7,11 +7,22 @@
 #include "vec3.cuh"
 #include "ray.cuh"
 #include "camera.cuh"
+#include "model.cuh"
+
+__constant__ SphereData sd[] = {
+    {{0, 0, -1}, 0.5}
+};
 
 __device__ void write_color(color* output, int width, int row, int col, color c) {
     output[row * width + col] = c;
 }
 __device__ color ray_color(const Ray& r) {
+    Sphere sphere(sd[0]);
+    hit_record rec;
+    if (sphere.hit(r, 0.0001, 100000, rec)) {
+        
+        return color{ 1,0,0 };
+    }
     vec3 unit_direction = unit_vector(r.direction);
     float t = 0.5 * (unit_direction.y + 1.0);
     return lerp(color{ 1, 1, 1 }, color{ 0.5f, 0.7f, 1.0f }, t);
@@ -28,18 +39,23 @@ __global__ void render(int image_width, int image_height,color* output) {
 
     // check boundary
     if (x >= image_width || y >= image_height) return;
+
+    // construct scene
+    Sphere sphere(sd[0]);
     
+    // use camera
     float u = float(x) / (image_width - 1);
     float v = float(y) / (image_height - 1);
-    //Ray ray(origin, lower_left_corner + u * horizontal + v * vertical - origin);
     Ray ray = camera.get_ray(u, v);
+
+    // radiance
     color c = ray_color(ray);
     write_color(output, image_width, image_height-y-1, x, c);
 }
 
-int quantize(float f) {
-    return static_cast<int>(f * 255.999);
-}
+
+
+
 
 //主函数
 int main(int argc,char** argv)
@@ -52,6 +68,9 @@ int main(int argc,char** argv)
      const double aspect_ratio = 16.0 / 9;
      const int image_width = 400;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
+
+    // Scene
+    
 
     // Render
     dim3 block(8,8);

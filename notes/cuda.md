@@ -30,6 +30,7 @@
     有一个显式使用`__host__`的理由：令一个函数同时可以在函数可以在Host或者Device调用。这样可以给出兼容性。
 - 核函数的限制
   - **只能访问设备内存**
+  - **只能执行设备代码**
   - **__global__不可递归**
   - 返回类型只能是void
   - 不支持C的可变数目参数
@@ -60,6 +61,14 @@
 
     `flag`取值`cudaMemcpyDeviceToHost`, `cudaMemcpyHostToDevice`
 
+  - `cudaMemcpyToSymbol()`实现**Host上的对象复制到Device上**
+    
+    注意这里有陷阱：由于Device上不能执行Host代码，因此**带虚方法的对象，在Device Code上无法利用多态**
+
+    这是因为虚函数的实现依赖虚函数表，表中的指针都是指向Host的代码的。
+
+    正确用法是：**只向Device发送数组和POD对象**。如果需要预定义对象，则利用通信的数据**在Device上构造对象**。在Device上构造的对象在Device上使用是可以正常多态的。
+
   -  `dim3 block(n,n)` 变量，存放Block的Size
   -  `mykernel<<<grid,block>>>(args)` 启动核函数的执行
      
@@ -70,7 +79,11 @@
   - `__global__, __host__, __device__`
   - `cudaError_t` 所有API调用的统一返回类型
   - `cudaGetErrorString(error)` 返回错误信息
-  - `__device__`声明设备上的全局变量
+  - `__device__`声明用于在Host Code中声明设备上的全局变量。注意：**不可以在Host Code 函数内部这样使用**
+  - `__constant__`在Host Code上声明Device上的变量。
+
+
+
 - Kernel API
   - `threadIdx.x/threadIdx.y`当前线程在线程“阵列”中的“位置”
   - `blockDim.x/blockDim.y`当前所在Block的Size
@@ -78,8 +91,15 @@
   - `__syncthreads()` Block内部线程同步
   - 声明Shared Memory变量。
 
+- 编程实践相关
+  - 虚函数/纯虚基类范式的作用有限。因为场景全局信息通常由Host Code处理。但Host到Device的路上只能传数据成员，虚函数表传过去没用了。如果是核函数构造的，那通常也不需要多态（此时更需要反序列化和反射）。
+
 ## 调试（待完善）
 讲道理，核函数里面居然可以printf。。。
+
+在项目设置的CUDA -> Device里启用调试信息，然后使用菜单里的拓展->Nsight启动断点调试
+
+比较新的架构用Nsight(Next-gen)调试
 
 ## Vector Types（待完善）
 

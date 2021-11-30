@@ -15,6 +15,10 @@ const double inf = std::numeric_limits<double>::infinity();
 __VECTOR_FUNCTIONS_DECL__  double degree_to_radius(double degree) {
 	return degree * pi / 180.0;
 }
+
+int quantize(float f) {
+	return static_cast<int>(f * 255.999);
+}
 //
 //__VECTOR_FUNCTIONS_DECL__ int random_int(int min, int max) {
 //	// int from [min, max]
