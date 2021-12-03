@@ -49,7 +49,7 @@ public:
 	}
 
 	
-private:
+public:
 	point3 center;
 	float radius;
 };

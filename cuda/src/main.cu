@@ -20,8 +20,10 @@ __device__ color ray_color(const Ray& r) {
     Sphere sphere(sd[0]);
     hit_record rec;
     if (sphere.hit(r, 0.0001, 100000, rec)) {
-        
-        return color{ 1,0,0 };
+        point3 hitp = r.at(rec.t);
+        vec3 normal = 0.5 + unit_vector(hitp - sphere.center) * 0.5;
+        return normal;
+        // return color{ 1,0,0 };
     }
     vec3 unit_direction = unit_vector(r.direction);
     float t = 0.5 * (unit_direction.y + 1.0);
