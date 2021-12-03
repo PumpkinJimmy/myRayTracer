@@ -27,6 +27,7 @@ __device__ void write_color(color* output, int width, int row, int col, color c)
 }
 __device__ color ray_color(const Ray& r, int depth, curandState* randState) {
 
+
     // ======== Scene 1 ========
     //Lambertian mat({ 0.5, 0.5, 0.5 });
     //Sphere sphere(sd[0].cen, sd[0].r, &mat);
@@ -53,6 +54,37 @@ __device__ color ray_color(const Ray& r, int depth, curandState* randState) {
     };
     //const int sphereNumber = 5;
     int sphereNumber = 5;
+
+    // printf("%f %f %f %f\n", s0.center.x, s0.center.y, s0.center.z, s0.radius);
+
+    //uint8_t* buf = new uint8_t[100];
+    //uint8_t* start = buf, * end = buf + 100;
+    //s0.serialize(start, end);
+    //end = start;
+
+    //Sphere* sphere_de;
+    //if (!Sphere::deserialize(start, end, sphere_de)) {
+    //    // printf("ahah\n");
+    //}
+    //else {
+    //    // printf("%f %f %f %f\n", sphere_de->center.x, sphere_de->center.y, sphere_de->center.z, sphere_de->radius);
+    //}
+    
+    //s1.serialize(start, end);
+    //s2.serialize(start, end);
+    //s3.serialize(start, end);
+    //s4.serialize(start, end);
+    //end = start;
+
+    //printf("hahah\n");
+
+    /*Sphere* spheres2[5];
+    start = buf;
+    Sphere::deserialize(start, end, spheres2[0]);
+    Sphere::deserialize(start, end, spheres2[1]);
+    Sphere::deserialize(start, end, spheres2[2]);
+    Sphere::deserialize(start, end, spheres2[3]);
+    Sphere::deserialize(start, end, spheres2[4]);*/
 
 
     
