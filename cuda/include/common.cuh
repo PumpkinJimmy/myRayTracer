@@ -40,4 +40,17 @@ __device__ float random_real(curandState* randState, float a, float b) {
 	return a + (b - a) * random_real(randState);
 }
 
+__device__ int bytecmp(const uint8_t* src, const uint8_t* dst, int len) {
+	for (int i = 0; i < len; i++) {
+		if (src[i] != dst[i]) return src[i] > dst[i] ? 1 : -1;
+	}
+	return 0;
+}
+
+__device__ void bytecpy(uint8_t* dst, const uint8_t* src, int len) {
+	for (int i = 0; i < len; i++) {
+		dst[i] = src[i];
+	}
+}
+
 #endif

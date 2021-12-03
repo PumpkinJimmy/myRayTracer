@@ -26,7 +26,7 @@ struct hit_record {
 
 class Hittable {
 public:
-	__host__ __device__ virtual bool hit(
+	__device__ virtual bool hit(
 		const Ray& r, float t_min, float t_max, hit_record& rec) const = 0;
 	typedef Hittable* Ptr;
 	typedef const Hittable* ConstPtr;

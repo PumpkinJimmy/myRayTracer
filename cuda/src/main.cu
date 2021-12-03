@@ -21,6 +21,7 @@ __constant__ SphereData sd[] = {
     {{1.0, 0.0, -1.0}, 0.5}
 };
 
+
 __device__ void write_color(color* output, int width, int row, int col, color c) {
     output[row * width + col] = sqrtf(c);
 }
@@ -50,7 +51,8 @@ __device__ color ray_color(const Ray& r, int depth, curandState* randState) {
     Sphere spheres[] = {
         s0, s1, s2, s3, s4
     };
-    const int sphereNumber = 5;
+    //const int sphereNumber = 5;
+    int sphereNumber = 5;
 
 
     
