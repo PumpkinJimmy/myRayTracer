@@ -25,8 +25,8 @@ public:
 	__device__ virtual bool scatter(
 		const Ray& r_in, const hit_record& rec, color& attenuation, Ray& scattered, curandState* randState
 	) const override {
-		//auto scatter_direction = rec.normal + random_unit_vector(randState);
-		auto scatter_direction = rec.normal + vec3{ 0, 0, 1 };
+		auto scatter_direction = rec.normal + random_unit_vector(randState);
+		//auto scatter_direction = rec.normal + vec3{ 0, 0, 1 };
 
 		if (near_zero(scatter_direction)) {
 			scatter_direction = rec.normal;

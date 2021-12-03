@@ -11,6 +11,8 @@
 #include "model.cuh"
 #include "common.cuh"
 #include "material.cuh"
+#include "cutil_math.h"
+#define inf 1000000000
 
 __constant__ SphereData sd[] = {
     {{0, 0, -1}, 0.5},
@@ -29,25 +31,36 @@ __device__ color ray_color(const Ray& r, int depth, curandState* randState) {
         sphere,
         sphere2
     };
+    Ray scattered = r;
+    color radiance = color{ 1,1,1 };
+    for (int bounce = 0; bounce < 50; bounce++) {
+        hit_record rec;
+        rec.t = inf;
+        for (int i = 0; i < 2; i++) {
+            hit_record tmp;
+            if (spheres[i].hit(scattered, 0.0001, inf, tmp)) {
+                if (tmp.t < rec.t) {
+                    rec = tmp;
+                }
+                // point3 hitp = r.at(rec.t);
+                // vec3 normal = 0.5 + unit_vector(hitp - spheres[i].center) * 0.5;
 
-    hit_record rec;
-    for (int i = 0; i < 2; i++) {
-        if (spheres[i].hit(r, 0.0001, 100000, rec)) {
-            point3 hitp = r.at(rec.t);
-            vec3 normal = 0.5 + unit_vector(hitp - spheres[i].center) * 0.5;
-            Ray scattered;
-            color attenuation;
-            if (rec.mat_ptr->scatter(r, rec, attenuation, scattered, randState)) {
-                return attenuation * ray_color(scattered, depth - 1, randState);
+                // return normal;
+                // return color{ 1,0,0 };
             }
-            // return normal;
-            // return color{ 1,0,0 };
+        }
+        color attenuation;
+        if (rec.t < inf && rec.mat_ptr->scatter(scattered, rec, attenuation, scattered, randState)) {
+            radiance *= attenuation;
+            // return attenuation * ray_color(scattered, depth - 1, randState);
+        }
+        else {
+            vec3 unit_direction = unit_vector(scattered.direction);
+            float t = 0.5 * (unit_direction.y + 1.0);
+            return radiance * lerp(color{ 1, 1, 1 }, color{ 0.5f, 0.7f, 1.0f }, t);
         }
     }
-
-    vec3 unit_direction = unit_vector(r.direction);
-    float t = 0.5 * (unit_direction.y + 1.0);
-    return lerp(color{ 1, 1, 1 }, color{ 0.5f, 0.7f, 1.0f }, t);
+    return color{ 0, 0, 0 };
 }
 
 __global__ void render(int image_width, int image_height,color* output, int framenumber, uint hashedframenumber) {
@@ -80,7 +93,7 @@ __global__ void render(int image_width, int image_height,color* output, int fram
         float v = (y + random_real(&randState)) / (image_height - 1);
         Ray ray = camera.get_ray(u, v);
 
-        color c = ray_color(ray, 8, &randState);
+        color c = ray_color(ray, 3, &randState);
         accumColor += c / sampleNumber;
     }
     write_color(output, image_width, image_height - y - 1, x, accumColor);
@@ -100,7 +113,7 @@ int main(int argc,char** argv)
 
     // Image
      const double aspect_ratio = 16.0 / 9;
-     const int image_width = 400;
+     const int image_width = 1200;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
 
     // Scene

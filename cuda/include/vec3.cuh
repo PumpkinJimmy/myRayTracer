@@ -1,5 +1,6 @@
 #ifndef _VEC3_H
 #define _VEC3_H
+#include <curand_kernel.h>
 #include <cmath>
 #include <vector_types.h>
 #include <vector_functions.h>
@@ -43,5 +44,19 @@ __VECTOR_FUNCTIONS_DECL__ bool near_zero(float3 v) {
 	return fabsf(v.x) < eps && fabsf(v.y) < eps && fabsf(v.z) < eps;
 }
 
+__device__ inline vec3 random_vec3(curandState* randState, float min_, float max_) {
+	return make_vec3(random_real(randState, min_, max_), random_real(randState, min_, max_), random_real(randState, min_, max_));
+}
+
+__device__ inline vec3 random_in_unit_sphere(curandState* randState) {
+	while (true) {
+		auto p = random_vec3(randState, -1, 1);
+		if (length_squared(p) >= 1) continue;
+		return p;
+	}
+}
+__device__ inline vec3 random_unit_vector(curandState* randState) {
+	return unit_vector(random_in_unit_sphere(randState));
+}
 
 #endif
