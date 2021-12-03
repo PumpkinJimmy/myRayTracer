@@ -20,7 +20,7 @@ __constant__ SphereData sd[] = {
 };
 
 __device__ void write_color(color* output, int width, int row, int col, color c) {
-    output[row * width + col] = c;
+    output[row * width + col] = sqrtf(c);
 }
 __device__ color ray_color(const Ray& r, int depth, curandState* randState) {
     if (depth <= 0) return color{ 0, 0, 0 };

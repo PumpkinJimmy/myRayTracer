@@ -28,6 +28,9 @@
     <ClInclude Include="..\include\hittable_list.cuh">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\thirdparty\include\cutil_math.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\main.cu">

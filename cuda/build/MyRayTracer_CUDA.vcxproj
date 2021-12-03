@@ -383,6 +383,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClInclude Include="..\include\model.cuh" />
     <ClInclude Include="..\include\ray.cuh" />
     <ClInclude Include="..\include\vec3.cuh" />
+    <ClInclude Include="..\thirdparty\include\cutil_math.h" />
     <ClInclude Include="E:\CG_ws\project\myRayTracer\cuda\include\cudastart.h" />
   </ItemGroup>
   <ItemGroup>
