@@ -38,5 +38,10 @@ __VECTOR_FUNCTIONS_DECL__ float3 operator-(float3 v) {
 	return make_float3(-v.x, -v.y, -v.z);
 }
 
+__VECTOR_FUNCTIONS_DECL__ bool near_zero(float3 v) {
+	const float eps = 1e-5;
+	return fabsf(v.x) < eps && fabsf(v.y) < eps && fabsf(v.z) < eps;
+}
+
 
 #endif

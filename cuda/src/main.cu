@@ -10,6 +10,7 @@
 #include "camera.cuh"
 #include "model.cuh"
 #include "common.cuh"
+#include "material.cuh"
 
 __constant__ SphereData sd[] = {
     {{0, 0, -1}, 0.5},
@@ -19,23 +20,31 @@ __constant__ SphereData sd[] = {
 __device__ void write_color(color* output, int width, int row, int col, color c) {
     output[row * width + col] = c;
 }
-__device__ color ray_color(const Ray& r) {
-    Sphere sphere(sd[0]);
-    Sphere sphere2(sd[1]);
+__device__ color ray_color(const Ray& r, int depth, curandState* randState) {
+    if (depth <= 0) return color{ 0, 0, 0 };
+    Lambertian mat({ 0.5, 0.5, 0.5 });
+    Sphere sphere(sd[0].cen, sd[0].r, &mat);
+    Sphere sphere2(sd[1].cen, sd[1].r, &mat);
+    Sphere spheres[] = {
+        sphere,
+        sphere2
+    };
 
     hit_record rec;
-    if (sphere.hit(r, 0.0001, 100000, rec)) {
-        point3 hitp = r.at(rec.t);
-        vec3 normal = 0.5 + unit_vector(hitp - sphere.center) * 0.5;
-        return normal;
-        // return color{ 1,0,0 };
+    for (int i = 0; i < 2; i++) {
+        if (spheres[i].hit(r, 0.0001, 100000, rec)) {
+            point3 hitp = r.at(rec.t);
+            vec3 normal = 0.5 + unit_vector(hitp - spheres[i].center) * 0.5;
+            Ray scattered;
+            color attenuation;
+            if (rec.mat_ptr->scatter(r, rec, attenuation, scattered, randState)) {
+                return attenuation * ray_color(scattered, depth - 1, randState);
+            }
+            // return normal;
+            // return color{ 1,0,0 };
+        }
     }
-    if (sphere2.hit(r, 0.0001, 100000, rec)) {
-        point3 hitp = r.at(rec.t);
-        vec3 normal = 0.5 + unit_vector(hitp - sphere2.center) * 0.5;
-        return normal;
-        // return color{ 1,0,0 };
-    }
+
     vec3 unit_direction = unit_vector(r.direction);
     float t = 0.5 * (unit_direction.y + 1.0);
     return lerp(color{ 1, 1, 1 }, color{ 0.5f, 0.7f, 1.0f }, t);
@@ -71,7 +80,7 @@ __global__ void render(int image_width, int image_height,color* output, int fram
         float v = (y + random_real(&randState)) / (image_height - 1);
         Ray ray = camera.get_ray(u, v);
 
-        color c = ray_color(ray);
+        color c = ray_color(ray, 8, &randState);
         accumColor += c / sampleNumber;
     }
     write_color(output, image_width, image_height - y - 1, x, accumColor);
@@ -114,7 +123,7 @@ int main(int argc,char** argv)
 
     color* output_h = (color*)malloc(image_width * image_height * sizeof(float3));
 
-    // scudaDeviceSynchronize();
+    cudaDeviceSynchronize();
 
     CHECK(cudaMemcpy(output_h, output_d, image_width * image_height * sizeof(float3), cudaMemcpyDeviceToHost));
 

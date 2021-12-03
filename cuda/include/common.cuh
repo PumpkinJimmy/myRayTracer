@@ -40,29 +40,4 @@ __device__ float random_real(curandState* randState, float a, float b) {
 	return a + (b - a) * random_real(randState);
 }
 
-//
-//__VECTOR_FUNCTIONS_DECL__ int random_int(int min, int max) {
-//	// int from [min, max]
-//	static std::mt19937 gen;
-//	std::uniform_int_distribution<> dist(min, max);
-//	return dist(gen);
-//}
-//
-//__VECTOR_FUNCTIONS_DECL__ double random_double() {
-//	// [0, 1)
-//	static std::uniform_real_distribution<double> dist(0.0, 1.0);
-//	static std::mt19937 gen;
-//	return dist(gen);
-//}
-//
-//__VECTOR_FUNCTIONS_DECL__ inline double random_double(double min_, double max_) {
-//	// [min, max)
-//	return min_ + (max_ - min_) * random_double();
-//}
-
-
-
-
-
-
 #endif

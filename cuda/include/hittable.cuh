@@ -7,6 +7,7 @@
 #include "common.cuh"
 #include "vec3.cuh"
 
+class Material;
 
 struct hit_record {
 	point3 p;
@@ -14,7 +15,7 @@ struct hit_record {
 	float t;
 	float u;
 	float v;
-
+	Material* mat_ptr;
 	bool front_face;
 
 	__host__ __device__ inline void set_face_normal(const Ray& r, const vec3& outward_normal) {

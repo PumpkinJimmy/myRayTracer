@@ -4,6 +4,7 @@
 #include "vec3.cuh"
 #include "ray.cuh"
 #include "hittable.cuh"
+#include "material.cuh"
 struct SphereData {
 	point3 cen;
 	float r;
@@ -11,11 +12,11 @@ struct SphereData {
 class Sphere {
 public:
 	__host__ __device__ Sphere() {}
-	__host__ __device__ Sphere(point3 cen, float r)
-		:center(cen), radius(r) {}
+	__host__ __device__ Sphere(point3 cen, float r, Material::Ptr mat)
+		:center(cen), radius(r), mat_ptr(mat) {}
 
 	__host__ __device__ Sphere(SphereData d)
-		:center(d.cen), radius(d.r){}
+		: center(d.cen), radius(d.r), mat_ptr(nullptr){}
 
 	__host__ __device__ bool hit(
 		const Ray& r, float t_min, float t_max, hit_record& rec) const {
@@ -43,6 +44,7 @@ public:
 		rec.t = root;
 		rec.p = r.at(rec.t);
 		vec3 outward_normal = (rec.p - center) / radius;
+		rec.mat_ptr = mat_ptr;
 		rec.set_face_normal(r, outward_normal);
 		return true;
 	}
@@ -51,6 +53,7 @@ public:
 public:
 	point3 center;
 	float radius;
+	Material::Ptr mat_ptr;
 };
 
 #endif
