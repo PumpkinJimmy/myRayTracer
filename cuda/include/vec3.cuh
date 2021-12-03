@@ -47,6 +47,13 @@ __VECTOR_FUNCTIONS_DECL__ bool near_zero(float3 v) {
 	return fabsf(v.x) < eps && fabsf(v.y) < eps && fabsf(v.z) < eps;
 }
 
+__device__ inline vec3 refract(vec3 uv, const vec3& n, float etai_over_etat) {
+	auto cos_theta = fminf(dot(-uv, n), 1.0);
+	vec3 r_out_perp = etai_over_etat * (uv + cos_theta * n);
+	vec3 r_out_parallel = -sqrt(fabs(1.0 - length_squared(r_out_perp))) * n;
+	return r_out_perp + r_out_parallel;
+}
+
 __device__ inline vec3 random_vec3(curandState* randState, float min_, float max_) {
 	return make_vec3(random_real(randState, min_, max_), random_real(randState, min_, max_), random_real(randState, min_, max_));
 }
@@ -63,11 +70,14 @@ __device__ inline vec3 random_unit_vector(curandState* randState) {
 }
 
 
-__device__ inline vec3 refract(vec3 uv, const vec3& n, float etai_over_etat) {
-	auto cos_theta = fminf(dot(-uv, n), 1.0);
-	vec3 r_out_perp = etai_over_etat * (uv + cos_theta * n);
-	vec3 r_out_parallel = -sqrt(fabs(1.0 - length_squared(r_out_perp))) * n;
-	return r_out_perp + r_out_parallel;
+
+
+__device__ inline vec3 random_in_unit_disk(curandState* randState) {
+	while (true) {
+		auto p = make_vec3(random_real(randState, -1, 1), random_real(randState, -1, 1), 0);
+		if (length_squared(p) >= 1) continue;
+		return p;
+	}
 }
 
 #endif

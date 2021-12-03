@@ -45,11 +45,12 @@ __device__ color ray_color(const Ray& r, int depth, curandState* randState) {
     Sphere s1(point3{ 0.0, 0.0, -1.0 }, 0.5, &mat_center);
     Sphere s2(point3{ -1.0, 0.0, -1.0 }, 0.5, &mat_left);
     Sphere s3(point3{ 1.0, 0.0, -1.0 }, 0.5, &mat_right);
+    Sphere s4(point3{ -1.0, 0.0, -1.0 }, -0.4, &mat_left);
 
     Sphere spheres[] = {
-        s0, s1, s2, s3
+        s0, s1, s2, s3, s4
     };
-    const int sphereNumber = 4;
+    const int sphereNumber = 5;
 
 
     
@@ -90,6 +91,8 @@ __global__ void render(int image_width, int image_height,color* output, int fram
 
     float aspect_ratio = float(image_width) / image_height;
     Camera camera(make_point3(0, 0, 0), make_point3(0, 0, -1), make_vec3(0, 1, 0), 90, aspect_ratio, 0.1, 1.0f);
+    // Camera camera(make_point3(-2, 2, 1), make_point3(0, 0, -1), make_vec3(0, 1, 0), 90, aspect_ratio, 0.1, 1.0f);
+    // Camera camera(make_point3(3, 3, 2), make_point3(0, 0, -1), make_vec3(0, 1, 0), 20, aspect_ratio, 2.0f, sqrtf(27));
 
     int x = blockIdx.x*blockDim.x+threadIdx.x;
     int y = blockIdx.y*blockDim.y+threadIdx.y;
@@ -103,7 +106,7 @@ __global__ void render(int image_width, int image_height,color* output, int fram
     curand_init(hashedframenumber + threadId, 0, 0, &randState);
 
     // construct scene
-    Sphere sphere(sd[0]);
+    // Sphere sphere(sd[0]);
     
     // use camera
     // radiance
@@ -113,7 +116,8 @@ __global__ void render(int image_width, int image_height,color* output, int fram
     for (int i = 0; i < sampleNumber; i++) {
         float u = (x + random_real(&randState)) / (image_width - 1);
         float v = (y + random_real(&randState)) / (image_height - 1);
-        Ray ray = camera.get_ray(u, v);
+        Ray ray = camera.get_ray(u, v, &randState);
+        // Ray ray = camera.get_ray(u, v);
 
         color c = ray_color(ray, 50, &randState);
         accumColor += c / sampleNumber;
@@ -135,7 +139,7 @@ int main(int argc,char** argv)
 
     // Image
      const double aspect_ratio = 16.0 / 9;
-     const int image_width = 1200;
+     const int image_width = 400;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
 
     // Scene

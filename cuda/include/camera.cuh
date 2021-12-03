@@ -32,10 +32,10 @@ public:
 		lens_radius = aperture / 2;
 	}
 
-	__host__ __device__ Ray get_ray(float s, float t) const {
-		//vec3 rd = lens_radius * random_in_unit_disk();
-		//vec3 offset = u * rd.x() + v * rd.y();
-		vec3 offset{ 0, 0, 0 };
+	__device__ Ray get_ray(float s, float t, curandState* randState) const {
+		vec3 rd = lens_radius * random_in_unit_disk(randState);
+		vec3 offset = u * rd.x + v * rd.y;
+		// vec3 offset{ 0, 0, 0 };
 		return Ray(
 			origin + offset,
 			lower_left_corner \
