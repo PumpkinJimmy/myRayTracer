@@ -102,6 +102,7 @@ public:
 
 public:
 	double ir;
+
 private:
 	static double reflectance(double cosine, double ref_idx) {
 		auto r0 = (1 - ref_idx) / (1 + ref_idx);
