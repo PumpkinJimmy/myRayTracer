@@ -36,7 +36,6 @@ public:
 		if (root < t_min || t_max < root) {
 			root = (-half_b + sqrtd) / a;
 			if (root < t_min || t_max < root)
-				printf("False2\n");
 				return false;
 		}
 		

@@ -3,14 +3,17 @@
 #include <stdlib.h>
 #include <fstream>
 #include <cmath>
+#include <curand_kernel.h>
 #include "cudastart.h"
 #include "vec3.cuh"
 #include "ray.cuh"
 #include "camera.cuh"
 #include "model.cuh"
+#include "common.cuh"
 
 __constant__ SphereData sd[] = {
-    {{0, 0, -1}, 0.5}
+    {{0, 0, -1}, 0.5},
+    {{0, -100.5, -1}, 100}
 };
 
 __device__ void write_color(color* output, int width, int row, int col, color c) {
@@ -18,10 +21,18 @@ __device__ void write_color(color* output, int width, int row, int col, color c)
 }
 __device__ color ray_color(const Ray& r) {
     Sphere sphere(sd[0]);
+    Sphere sphere2(sd[1]);
+
     hit_record rec;
     if (sphere.hit(r, 0.0001, 100000, rec)) {
         point3 hitp = r.at(rec.t);
         vec3 normal = 0.5 + unit_vector(hitp - sphere.center) * 0.5;
+        return normal;
+        // return color{ 1,0,0 };
+    }
+    if (sphere2.hit(r, 0.0001, 100000, rec)) {
+        point3 hitp = r.at(rec.t);
+        vec3 normal = 0.5 + unit_vector(hitp - sphere2.center) * 0.5;
         return normal;
         // return color{ 1,0,0 };
     }
@@ -30,7 +41,7 @@ __device__ color ray_color(const Ray& r) {
     return lerp(color{ 1, 1, 1 }, color{ 0.5f, 0.7f, 1.0f }, t);
 }
 
-__global__ void render(int image_width, int image_height,color* output) {
+__global__ void render(int image_width, int image_height,color* output, int framenumber, uint hashedframenumber) {
 
 
     float aspect_ratio = float(image_width) / image_height;
@@ -42,17 +53,29 @@ __global__ void render(int image_width, int image_height,color* output) {
     // check boundary
     if (x >= image_width || y >= image_height) return;
 
+    // init random
+    int threadId = (blockIdx.x + blockIdx.y * gridDim.x) * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x) + threadIdx.x;
+    curandState randState;
+    curand_init(hashedframenumber + threadId, 0, 0, &randState);
+
     // construct scene
     Sphere sphere(sd[0]);
     
     // use camera
-    float u = float(x) / (image_width - 1);
-    float v = float(y) / (image_height - 1);
-    Ray ray = camera.get_ray(u, v);
-
     // radiance
-    color c = ray_color(ray);
-    write_color(output, image_width, image_height-y-1, x, c);
+
+    const int sampleNumber = 100;
+    color accumColor{ 0, 0, 0 };
+    for (int i = 0; i < sampleNumber; i++) {
+        float u = (x + random_real(&randState)) / (image_width - 1);
+        float v = (y + random_real(&randState)) / (image_height - 1);
+        Ray ray = camera.get_ray(u, v);
+
+        color c = ray_color(ray);
+        accumColor += c / sampleNumber;
+    }
+    write_color(output, image_width, image_height - y - 1, x, accumColor);
+    
 }
 
 
@@ -85,7 +108,9 @@ int main(int argc,char** argv)
     render << <grid, block >> > (
         image_width,
         image_height,
-        output_d);
+        output_d,
+        0,
+        WangHash(0));
 
     color* output_h = (color*)malloc(image_width * image_height * sizeof(float3));
 
