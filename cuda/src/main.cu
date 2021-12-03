@@ -16,27 +16,49 @@
 
 __constant__ SphereData sd[] = {
     {{0, 0, -1}, 0.5},
-    {{0, -100.5, -1}, 100}
+    {{0, -100.5, -1}, 100},
+    {{-1.0, 0.0, -1.0}, 0.5},
+    {{1.0, 0.0, -1.0}, 0.5}
 };
 
 __device__ void write_color(color* output, int width, int row, int col, color c) {
     output[row * width + col] = sqrtf(c);
 }
 __device__ color ray_color(const Ray& r, int depth, curandState* randState) {
-    if (depth <= 0) return color{ 0, 0, 0 };
-    Lambertian mat({ 0.5, 0.5, 0.5 });
-    Sphere sphere(sd[0].cen, sd[0].r, &mat);
-    Sphere sphere2(sd[1].cen, sd[1].r, &mat);
+
+    // ======== Scene 1 ========
+    //Lambertian mat({ 0.5, 0.5, 0.5 });
+    //Sphere sphere(sd[0].cen, sd[0].r, &mat);
+    //Sphere sphere2(sd[1].cen, sd[1].r, &mat);
+    //Sphere spheres[] = {
+    //    sphere,
+    //    sphere2
+    //};
+
+    // ======== Scene 2 ========
+    auto mat_ground = Lambertian(color{ 0.8, 0.8, 0.0 });
+    auto mat_center = Lambertian(color{ 0.1, 0.2, 0.5 });
+    auto mat_left = Dielectric(1.5);
+    auto mat_right = Metal(color{ 0.8, 0.6, 0.2 }, 0.0);
+
+    Sphere s0(point3{ 0.0, -100.5, -1.0 }, 100.0, &mat_ground);
+    Sphere s1(point3{ 0.0, 0.0, -1.0 }, 0.5, &mat_center);
+    Sphere s2(point3{ -1.0, 0.0, -1.0 }, 0.5, &mat_left);
+    Sphere s3(point3{ 1.0, 0.0, -1.0 }, 0.5, &mat_right);
+
     Sphere spheres[] = {
-        sphere,
-        sphere2
+        s0, s1, s2, s3
     };
+    const int sphereNumber = 4;
+
+
+    
     Ray scattered = r;
     color radiance = color{ 1,1,1 };
-    for (int bounce = 0; bounce < 50; bounce++) {
+    for (int bounce = 0; bounce < depth; bounce++) {
         hit_record rec;
         rec.t = inf;
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < sphereNumber; i++) {
             hit_record tmp;
             if (spheres[i].hit(scattered, 0.0001, inf, tmp)) {
                 if (tmp.t < rec.t) {
@@ -93,7 +115,7 @@ __global__ void render(int image_width, int image_height,color* output, int fram
         float v = (y + random_real(&randState)) / (image_height - 1);
         Ray ray = camera.get_ray(u, v);
 
-        color c = ray_color(ray, 3, &randState);
+        color c = ray_color(ray, 50, &randState);
         accumColor += c / sampleNumber;
     }
     write_color(output, image_width, image_height - y - 1, x, accumColor);
