@@ -92,14 +92,30 @@
   - 声明Shared Memory变量。
 
 - 编程实践相关
-  - 虚函数/纯虚基类范式的作用有限。因为场景全局信息通常由Host Code处理。但Host到Device的路上只能传数据成员，虚函数表传过去没用了。如果是核函数构造的，那通常也不需要多态（此时更需要反序列化和反射）。
-
-## 调试（待完善）
+  - 虚函数/纯虚基类范式使用要小心，**尤其不能使用Host中构造的含虚函数的对象**。因为场景全局信息通常由Host Code处理。但Host到Device的路上只能传数据成员，虚函数表传过去没用了。如果是核函数构造的，那通常也不需要多态（此时更需要反序列化和反射）。
+## 调试
 讲道理，核函数里面居然可以printf。。。
 
 在项目设置的CUDA -> Device里启用调试信息，然后使用菜单里的拓展->Nsight启动断点调试
 
 比较新的架构用Nsight(Next-gen)调试
+
+## Device动态内存分配
+- 直接在Device Code中使用`malloc/free`或者`new/delete`
+- 这样分配的内存来自`Global Memory`
+- **需要提前开放Device堆空间：`cudaThreadSetLimit(cudaLimitMallocHeapSize, yourSize)`**
+- 一般不要再线程中直接new，因为并发的线程很多，这样很可能new一堆。可以考虑运行一些`<<<1,1>>>`的初始化代码
+## Shared Memory使用
+- 静态
+  
+  编译时已知，则直接在Device Code中声明`__shared__ int arr[SIZE]`
+
+- 动态
+  
+  动态分配的Shared Memory如下步骤使用：
+  1. Host中指明大小：`mykernel<<<gridDim, blockDim, sharedSize>>>()`
+  2. Device中声明：`extern __shared__ int arr[]`；注意**一个kernel中只能声明一次这样的东西，且它的大小就是上一步中指定的**
+  3. **(Device)线程之间同步**：`__syncthreads()`
 
 ## Vector Types（待完善）
 

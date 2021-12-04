@@ -51,7 +51,7 @@ public:
 	__device__ virtual bool serialize(uint8_t*& start, const uint8_t* end) const {
 		
 		SphereData d{ center, radius };
-		bytecpy(start, (uint8_t*)&d, sizeof(SphereData));
+		*(SphereData*)(start) = d;
 		start += sizeof(SphereData);
 		if (!mat_ptr->serialize(start, end)) return false;
 		return true;
@@ -63,8 +63,9 @@ public:
 		}
 		else {
 			SphereData d = *(SphereData*)start;
+			start += sizeof(SphereData);
 			Material::Ptr mat;
-			if (!material_deserialize(start, end, mat)) {
+			if (material_deserialize(start, end, mat)) {
 				res = new Sphere(d.cen, d.r, mat);
 				return true;
 			}

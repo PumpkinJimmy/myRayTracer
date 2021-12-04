@@ -14,12 +14,13 @@
 #include "cutil_math.h"
 #define inf 1000000000
 
-__constant__ SphereData sd[] = {
-    {{0, 0, -1}, 0.5},
-    {{0, -100.5, -1}, 100},
-    {{-1.0, 0.0, -1.0}, 0.5},
-    {{1.0, 0.0, -1.0}, 0.5}
-};
+//__constant__ SphereData sd[] = {
+//    {{0, 0, -1}, 0.5},
+//    {{0, -100.5, -1}, 100},
+//    {{-1.0, 0.0, -1.0}, 0.5},
+//    {{1.0, 0.0, -1.0}, 0.5}
+//};
+__device__ Sphere** sps;
 
 
 __device__ void write_color(color* output, int width, int row, int col, color c) {
@@ -38,7 +39,7 @@ __device__ color ray_color(const Ray& r, int depth, curandState* randState) {
     //};
 
     // ======== Scene 2 ========
-    auto mat_ground = Lambertian(color{ 0.8, 0.8, 0.0 });
+    /*auto mat_ground = Lambertian(color{ 0.8, 0.8, 0.0 });
     auto mat_center = Lambertian(color{ 0.1, 0.2, 0.5 });
     auto mat_left = Dielectric(1.5);
     auto mat_right = Metal(color{ 0.8, 0.6, 0.2 }, 0.0);
@@ -51,42 +52,10 @@ __device__ color ray_color(const Ray& r, int depth, curandState* randState) {
 
     Sphere spheres[] = {
         s0, s1, s2, s3, s4
-    };
+    };*/
+    Sphere** spheres = sps;
     //const int sphereNumber = 5;
     int sphereNumber = 5;
-
-    // printf("%f %f %f %f\n", s0.center.x, s0.center.y, s0.center.z, s0.radius);
-
-    //uint8_t* buf = new uint8_t[100];
-    //uint8_t* start = buf, * end = buf + 100;
-    //s0.serialize(start, end);
-    //end = start;
-
-    //Sphere* sphere_de;
-    //if (!Sphere::deserialize(start, end, sphere_de)) {
-    //    // printf("ahah\n");
-    //}
-    //else {
-    //    // printf("%f %f %f %f\n", sphere_de->center.x, sphere_de->center.y, sphere_de->center.z, sphere_de->radius);
-    //}
-    
-    //s1.serialize(start, end);
-    //s2.serialize(start, end);
-    //s3.serialize(start, end);
-    //s4.serialize(start, end);
-    //end = start;
-
-    //printf("hahah\n");
-
-    /*Sphere* spheres2[5];
-    start = buf;
-    Sphere::deserialize(start, end, spheres2[0]);
-    Sphere::deserialize(start, end, spheres2[1]);
-    Sphere::deserialize(start, end, spheres2[2]);
-    Sphere::deserialize(start, end, spheres2[3]);
-    Sphere::deserialize(start, end, spheres2[4]);*/
-
-
     
     Ray scattered = r;
     color radiance = color{ 1,1,1 };
@@ -95,7 +64,7 @@ __device__ color ray_color(const Ray& r, int depth, curandState* randState) {
         rec.t = inf;
         for (int i = 0; i < sphereNumber; i++) {
             hit_record tmp;
-            if (spheres[i].hit(scattered, 0.0001, inf, tmp)) {
+            if (spheres[i]->hit(scattered, 0.0001, inf, tmp)) {
                 if (tmp.t < rec.t) {
                     rec = tmp;
                 }
@@ -118,6 +87,27 @@ __device__ color ray_color(const Ray& r, int depth, curandState* randState) {
         }
     }
     return color{ 0, 0, 0 };
+}
+
+__global__ void initScene() {
+    sps = new Sphere * [5];
+    if (sps == NULL) {
+        printf("New Fail\n");
+    }
+    else  printf("New OK\n");
+
+    Material::Ptr mat_ground = new Lambertian(color{ 0.8, 0.8, 0.0 });
+    Material::Ptr mat_center = new Lambertian(color{ 0.1, 0.2, 0.5 });
+    Material::Ptr mat_left = new Dielectric(1.5);
+    Material::Ptr mat_right = new Metal(color{ 0.8, 0.6, 0.2 }, 0.0);
+
+    Sphere* s0 = new Sphere(point3{ 0.0, -100.5, -1.0 }, 100.0, mat_ground);
+    Sphere* s1 = new Sphere(point3{ 0.0, 0.0, -1.0 }, 0.5, mat_center);
+    Sphere* s2 = new Sphere(point3{ -1.0, 0.0, -1.0 }, 0.5, mat_left);
+    Sphere* s3 = new Sphere(point3{ 1.0, 0.0, -1.0 }, 0.5, mat_right);
+    Sphere* s4 = new Sphere(point3{ -1.0, 0.0, -1.0 }, -0.4, mat_left);
+
+    sps[0] = s0; sps[1] = s1; sps[2] = s2; sps[3] = s3; sps[4] = s4;
 }
 
 __global__ void render(int image_width, int image_height,color* output, int framenumber, uint hashedframenumber) {
@@ -170,6 +160,9 @@ int main(int argc,char** argv)
     //设备初始化
     printf("strating...\n");
     initDevice(0);
+    // cudaThreadSetLimit(cudaLimitMallocHeapSize, 128 * 1024 * 1024);
+    initScene << <1, 1 >> > ();
+    
 
     // Image
      const double aspect_ratio = 16.0 / 9;
@@ -185,6 +178,7 @@ int main(int argc,char** argv)
     dim3 grid(std::ceilf(float(image_width) / block.x), std::ceilf(float(image_height) / block.y));
 
     color* output_d = NULL;
+
     CHECK(cudaMalloc(&output_d, image_width * image_height * sizeof(float3)));
 
     render << <grid, block >> > (
