@@ -71,17 +71,11 @@ __device__ color ray_color(const Ray& r, int depth, curandState* randState) {
             if (spheres[i]->hit(scattered, 0.0001, tmax, tmp)) {
                 rec = tmp;
                 tmax = tmp.t;
-                // point3 hitp = r.at(rec.t);
-                // vec3 normal = 0.5 + unit_vector(hitp - spheres[i].center) * 0.5;
-
-                // return normal;
-                // return color{ 1,0,0 };
             }
         }
         color attenuation;
         if (tmax < inf && rec.mat_ptr->scatter(scattered, rec, attenuation, scattered, randState)) {
             radiance *= attenuation;
-            // return attenuation * ray_color(scattered, depth - 1, randState);
         }
         else {
             vec3 unit_direction = unit_vector(scattered.direction);
@@ -93,10 +87,18 @@ __device__ color ray_color(const Ray& r, int depth, curandState* randState) {
 }
 
 __global__ void initScene() {
-   
 
-    // Scene 2
-    //sps = new Sphere * [5];
+    // ======== Scene 1 ========
+    //auto mat = Lambertian::create(make_color(0.5, 0.5, 0.5));
+    //auto sphere = Sphere::create(make_point3(0,0,-1), 0.5, mat);
+    //auto sphere2 = Sphere::create(make_point3(0,-100.5, -1), 100, mat);
+    //sps = new Hittable::Ptr[2];
+    //sps[0] = sphere;
+    //sps[1] = sphere2;
+    //sphereNumber = 2;
+
+    // ======== Scene 2 =========
+    //sps = new Hittable::Ptr [5];
     //sphereNumber = 5;
     //if (sps == NULL) {
     //    printf("Mem. Allocate Fail\n");
@@ -115,7 +117,7 @@ __global__ void initScene() {
 
     //sps[0] = s0; sps[1] = s1; sps[2] = s2; sps[3] = s3; sps[4] = s4;
 
-    // Final Scene
+    // ======= Final Scene =========
 
     int rcnt = 0;
     int ccnt = 0;
@@ -129,45 +131,45 @@ __global__ void initScene() {
 
     int p = 0;
 
-    for (int a = -rcnt / 2; a < rcnt/2; a++) {
-        for (int b = -ccnt/2 ; b < ccnt/2 ; b++) {
-            auto choose_mat = random_real(&randState);
-            point3 center= make_point3(a + 0.9 * random_real(&randState), 0.2, b + 0.9 * random_real(&randState));
+    //for (int a = -rcnt / 2; a < rcnt/2; a++) {
+    //    for (int b = -ccnt/2 ; b < ccnt/2 ; b++) {
+    //        auto choose_mat = random_real(&randState);
+    //        point3 center= make_point3(a + 0.9 * random_real(&randState), 0.2, b + 0.9 * random_real(&randState));
 
-            if (length(center - make_point3(4, 0.2, 0)) > 0.9) {
-                Material::Ptr sphere_material;
-                if (choose_mat < 0.8) {
-                    // diffuse
-                    auto albedo = random_vec3(&randState) * random_vec3(&randState);
-                    sphere_material = Lambertian::create(albedo);
-                    sps[p++] = Sphere::create(center, 0.2, sphere_material);
-                }
-                else if (choose_mat < 0.95) {
-                    // metal
-                    auto albedo = random_vec3(&randState, 0.5, 1);
-                    auto fuzz = random_real(&randState, 0, 0.5);
-                    sphere_material = Metal::create(albedo, fuzz);
-                    sps[p++] = Sphere::create(center, 0.2, sphere_material);
+    //        if (length(center - make_point3(4, 0.2, 0)) > 0.9) {
+    //            Material::Ptr sphere_material;
+    //            if (choose_mat < 0.8) {
+    //                // diffuse
+    //                auto albedo = random_vec3(&randState) * random_vec3(&randState);
+    //                sphere_material = Lambertian::create(albedo);
+    //                sps[p++] = Sphere::create(center, 0.2, sphere_material);
+    //            }
+    //            else if (choose_mat < 0.95) {
+    //                // metal
+    //                auto albedo = random_vec3(&randState, 0.5, 1);
+    //                auto fuzz = random_real(&randState, 0, 0.5);
+    //                sphere_material = Metal::create(albedo, fuzz);
+    //                sps[p++] = Sphere::create(center, 0.2, sphere_material);
 
-                }
-                else {
-                    // glass
-                    sphere_material = Dielectric::create(1.5);
-                    sps[p++] = Sphere::create(center, 0.2, sphere_material);
-                }
-            }
-        }
-    }
+    //            }
+    //            else {
+    //                // glass
+    //                sphere_material = Dielectric::create(1.5);
+    //                sps[p++] = Sphere::create(center, 0.2, sphere_material);
+    //            }
+    //        }
+    //    }
+    //}
 
-    Material::Ptr material1 = Dielectric::create(1.5);
-    sps[p++] = Sphere::create(make_point3(0, 1, 0), 1.0, material1);
+    //Material::Ptr material1 = Dielectric::create(1.5);
+    //sps[p++] = Sphere::create(make_point3(0, 1, 0), 1.0, material1);
 
-    Material::Ptr material2 = Lambertian::create(make_color(0.4, 0.2, 0.1));
-    sps[p++] = Sphere::create(make_point3(-4, 1, 0), 1.0, material2);
+    //Material::Ptr material2 = Lambertian::create(make_color(0.4, 0.2, 0.1));
+    //sps[p++] = Sphere::create(make_point3(-4, 1, 0), 1.0, material2);
 
 
-    Material::Ptr material3 = Metal::create(make_color(0.7, 0.6, 0.5), 0.0);
-    sps[p++] = Sphere::create(make_point3(4, 1, 0), 1.0, material3);
+    //Material::Ptr material3 = Metal::create(make_color(0.7, 0.6, 0.5), 0.0);
+    //sps[p++] = Sphere::create(make_point3(4, 1, 0), 1.0, material3);
 
     Material::Ptr ground_meterial = Lambertian::create(make_color(0.5, 0.5, 0.5));
     sps[p++] = Sphere::create(make_point3(0, -1000, 0), 1000, ground_meterial);
@@ -209,7 +211,7 @@ __global__ void render(int image_width, int image_height,color* output, int fram
     // use camera
     // radiance
 
-    // const int sample Number = 100;
+    // const int sampleNumber = 100;
     const int sampleNumber = 500;
     color accumColor{ 0, 0, 0 };
     for (int i = 0; i < sampleNumber; i++) {
