@@ -31,6 +31,9 @@
     <ClInclude Include="..\thirdparty\include\cutil_math.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\cutil_double.cuh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\main.cu">

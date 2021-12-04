@@ -377,6 +377,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <CudaCompile Include="..\src\main.cu" />
     <ClInclude Include="..\include\camera.cuh" />
     <ClInclude Include="..\include\common.cuh" />
+    <ClInclude Include="..\include\cutil_double.cuh" />
     <ClInclude Include="..\include\hittable.cuh" />
     <ClInclude Include="..\include\hittable_list.cuh" />
     <ClInclude Include="..\include\material.cuh" />

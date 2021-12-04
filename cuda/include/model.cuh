@@ -22,12 +22,13 @@ public:
 
 	__device__ bool hit(
 		const Ray& r, float t_min, float t_max, hit_record& rec) const {
-		vec3 oc = r.origin - center;
-		float a = length_squared(r.direction);
-		float half_b = dot(oc, r.direction);
-		float c = length_squared(oc) - radius * radius;
+		auto oc = float3(r.origin) - float3(center);
+		auto rd = r.direction;
+		auto a = length_squared(rd);
+		auto half_b = dot(oc, rd);
+		auto c = length_squared(oc) - double(radius) * radius;
 
-		float delta = half_b * half_b - a * c;
+		auto delta = half_b * half_b - a * c;
 
 		if (delta < 0) {
 			return false;
