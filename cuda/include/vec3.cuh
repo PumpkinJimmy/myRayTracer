@@ -54,6 +54,10 @@ __device__ inline vec3 refract(vec3 uv, const vec3& n, float etai_over_etat) {
 	return r_out_perp + r_out_parallel;
 }
 
+__device__ inline vec3 random_vec3(curandState* randState) {
+	return make_vec3(random_real(randState), random_real(randState), random_real(randState));
+}
+
 __device__ inline vec3 random_vec3(curandState* randState, float min_, float max_) {
 	return make_vec3(random_real(randState, min_, max_), random_real(randState, min_, max_), random_real(randState, min_, max_));
 }

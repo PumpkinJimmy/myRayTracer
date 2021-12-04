@@ -9,8 +9,10 @@ struct SphereData {
 	point3 cen;
 	float r;
 };
-class Sphere: Hittable {
+class Sphere: public Hittable {
 public:
+	typedef Sphere* Ptr;
+	typedef const Sphere* ConstPtr;
 	__host__ __device__ Sphere() {}
 	__host__ __device__ Sphere(point3 cen, float r, Material::Ptr mat)
 		:center(cen), radius(r), mat_ptr(mat) {}
@@ -71,6 +73,10 @@ public:
 			}
 			else return false;
 		}
+	}
+	template<typename... Args>
+	__device__ static Sphere::Ptr create(Args... args) {
+		return new Sphere(args...);
 	}
 
 

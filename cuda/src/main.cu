@@ -12,6 +12,7 @@
 #include "common.cuh"
 #include "material.cuh"
 #include "cutil_math.h"
+#include "hittable.cuh"
 #define inf 1000000000
 
 //__constant__ SphereData sd[] = {
@@ -20,7 +21,8 @@
 //    {{-1.0, 0.0, -1.0}, 0.5},
 //    {{1.0, 0.0, -1.0}, 0.5}
 //};
-__device__ Sphere** sps;
+__device__ Hittable** sps;
+__device__ int sphereNumber;
 
 
 __device__ void write_color(color* output, int width, int row, int col, color c) {
@@ -53,21 +55,22 @@ __device__ color ray_color(const Ray& r, int depth, curandState* randState) {
     Sphere spheres[] = {
         s0, s1, s2, s3, s4
     };*/
-    Sphere** spheres = sps;
+    // Sphere** spheres = sps;
     //const int sphereNumber = 5;
-    int sphereNumber = 5;
+    auto spheres = sps;
+    
     
     Ray scattered = r;
     color radiance = color{ 1,1,1 };
+    
     for (int bounce = 0; bounce < depth; bounce++) {
         hit_record rec;
-        rec.t = inf;
+        float tmax = inf;
         for (int i = 0; i < sphereNumber; i++) {
             hit_record tmp;
-            if (spheres[i]->hit(scattered, 0.0001, inf, tmp)) {
-                if (tmp.t < rec.t) {
-                    rec = tmp;
-                }
+            if (spheres[i]->hit(scattered, 0.0001, tmax, tmp)) {
+                rec = tmp;
+                tmax = tmp.t;
                 // point3 hitp = r.at(rec.t);
                 // vec3 normal = 0.5 + unit_vector(hitp - spheres[i].center) * 0.5;
 
@@ -76,7 +79,7 @@ __device__ color ray_color(const Ray& r, int depth, curandState* randState) {
             }
         }
         color attenuation;
-        if (rec.t < inf && rec.mat_ptr->scatter(scattered, rec, attenuation, scattered, randState)) {
+        if (tmax < inf && rec.mat_ptr->scatter(scattered, rec, attenuation, scattered, randState)) {
             radiance *= attenuation;
             // return attenuation * ray_color(scattered, depth - 1, randState);
         }
@@ -90,33 +93,104 @@ __device__ color ray_color(const Ray& r, int depth, curandState* randState) {
 }
 
 __global__ void initScene() {
-    sps = new Sphere * [5];
+   
+
+    // Scene 2
+    //sps = new Sphere * [5];
+    //sphereNumber = 5;
+    //if (sps == NULL) {
+    //    printf("Mem. Allocate Fail\n");
+    //    return;
+    //}
+    //Material::Ptr mat_ground = new Lambertian(color{ 0.8, 0.8, 0.0 });
+    //Material::Ptr mat_center = new Lambertian(color{ 0.1, 0.2, 0.5 });
+    //Material::Ptr mat_left = new Dielectric(1.5);
+    //Material::Ptr mat_right = new Metal(color{ 0.8, 0.6, 0.2 }, 0.0);
+
+    //Sphere* s0 = new Sphere(point3{ 0.0, -100.5, -1.0 }, 100.0, mat_ground);
+    //Sphere* s1 = new Sphere(point3{ 0.0, 0.0, -1.0 }, 0.5, mat_center);
+    //Sphere* s2 = new Sphere(point3{ -1.0, 0.0, -1.0 }, 0.5, mat_left);
+    //Sphere* s3 = new Sphere(point3{ 1.0, 0.0, -1.0 }, 0.5, mat_right);
+    //Sphere* s4 = new Sphere(point3{ -1.0, 0.0, -1.0 }, -0.4, mat_left);
+
+    //sps[0] = s0; sps[1] = s1; sps[2] = s2; sps[3] = s3; sps[4] = s4;
+
+    // Final Scene
+
+    int rcnt = 0;
+    int ccnt = 0;
+    sps = new Hittable::Ptr[rcnt * ccnt + 4];
     if (sps == NULL) {
-        printf("New Fail\n");
+        printf("Mem. Allocate Fail\n");
+        return;
     }
-    else  printf("New OK\n");
 
-    Material::Ptr mat_ground = new Lambertian(color{ 0.8, 0.8, 0.0 });
-    Material::Ptr mat_center = new Lambertian(color{ 0.1, 0.2, 0.5 });
-    Material::Ptr mat_left = new Dielectric(1.5);
-    Material::Ptr mat_right = new Metal(color{ 0.8, 0.6, 0.2 }, 0.0);
+    curandState randState;
 
-    Sphere* s0 = new Sphere(point3{ 0.0, -100.5, -1.0 }, 100.0, mat_ground);
-    Sphere* s1 = new Sphere(point3{ 0.0, 0.0, -1.0 }, 0.5, mat_center);
-    Sphere* s2 = new Sphere(point3{ -1.0, 0.0, -1.0 }, 0.5, mat_left);
-    Sphere* s3 = new Sphere(point3{ 1.0, 0.0, -1.0 }, 0.5, mat_right);
-    Sphere* s4 = new Sphere(point3{ -1.0, 0.0, -1.0 }, -0.4, mat_left);
+    int p = 0;
 
-    sps[0] = s0; sps[1] = s1; sps[2] = s2; sps[3] = s3; sps[4] = s4;
+    for (int a = -rcnt / 2; a < rcnt/2; a++) {
+        for (int b = -ccnt/2 ; b < ccnt/2 ; b++) {
+            auto choose_mat = random_real(&randState);
+            point3 center= make_point3(a + 0.9 * random_real(&randState), 0.2, b + 0.9 * random_real(&randState));
+
+            if (length(center - make_point3(4, 0.2, 0)) > 0.9) {
+                Material::Ptr sphere_material;
+                if (choose_mat < 0.8) {
+                    // diffuse
+                    auto albedo = random_vec3(&randState) * random_vec3(&randState);
+                    sphere_material = Lambertian::create(albedo);
+                    sps[p++] = Sphere::create(center, 0.2, sphere_material);
+                }
+                else if (choose_mat < 0.95) {
+                    // metal
+                    auto albedo = random_vec3(&randState, 0.5, 1);
+                    auto fuzz = random_real(&randState, 0, 0.5);
+                    sphere_material = Metal::create(albedo, fuzz);
+                    sps[p++] = Sphere::create(center, 0.2, sphere_material);
+
+                }
+                else {
+                    // glass
+                    sphere_material = Dielectric::create(1.5);
+                    sps[p++] = Sphere::create(center, 0.2, sphere_material);
+                }
+            }
+        }
+    }
+
+    Material::Ptr material1 = Dielectric::create(1.5);
+    sps[p++] = Sphere::create(make_point3(0, 1, 0), 1.0, material1);
+
+    Material::Ptr material2 = Lambertian::create(make_color(0.4, 0.2, 0.1));
+    sps[p++] = Sphere::create(make_point3(-4, 1, 0), 1.0, material2);
+
+
+    Material::Ptr material3 = Metal::create(make_color(0.7, 0.6, 0.5), 0.0);
+    sps[p++] = Sphere::create(make_point3(4, 1, 0), 1.0, material3);
+
+    Material::Ptr ground_meterial = Lambertian::create(make_color(0.5, 0.5, 0.5));
+    sps[p++] = Sphere::create(make_point3(0, -1000, 0), 1000, ground_meterial);
+
+    sphereNumber = p;
 }
 
 __global__ void render(int image_width, int image_height,color* output, int framenumber, uint hashedframenumber) {
 
 
     float aspect_ratio = float(image_width) / image_height;
-    Camera camera(make_point3(0, 0, 0), make_point3(0, 0, -1), make_vec3(0, 1, 0), 90, aspect_ratio, 0.1, 1.0f);
+    // Camera camera(make_point3(0, 0, 0), make_point3(0, 0, -1), make_vec3(0, 1, 0), 90, aspect_ratio, 0.1, 1.0f);
     // Camera camera(make_point3(-2, 2, 1), make_point3(0, 0, -1), make_vec3(0, 1, 0), 90, aspect_ratio, 0.1, 1.0f);
     // Camera camera(make_point3(3, 3, 2), make_point3(0, 0, -1), make_vec3(0, 1, 0), 20, aspect_ratio, 2.0f, sqrtf(27));
+    Camera camera(
+        make_point3(13, 2, 3),
+        make_point3(0, 0, 0),
+        make_vec3(0, 1, 0),
+        20,
+        aspect_ratio,
+        0.1f,
+        10.0);
+
 
     int x = blockIdx.x*blockDim.x+threadIdx.x;
     int y = blockIdx.y*blockDim.y+threadIdx.y;
@@ -135,7 +209,8 @@ __global__ void render(int image_width, int image_height,color* output, int fram
     // use camera
     // radiance
 
-    const int sampleNumber = 100;
+    // const int sample Number = 100;
+    const int sampleNumber = 500;
     color accumColor{ 0, 0, 0 };
     for (int i = 0; i < sampleNumber; i++) {
         float u = (x + random_real(&randState)) / (image_width - 1);
@@ -161,12 +236,17 @@ int main(int argc,char** argv)
     printf("strating...\n");
     initDevice(0);
     // cudaThreadSetLimit(cudaLimitMallocHeapSize, 128 * 1024 * 1024);
+
+    printf("Initialize Scene...\n");
     initScene << <1, 1 >> > ();
-    
+    cudaDeviceSynchronize();
+    printf("Initialize Scene...OK\n");
 
     // Image
-     const double aspect_ratio = 16.0 / 9;
-     const int image_width = 400;
+    //const double aspect_ratio = 16.0 / 9;
+    //const int image_width = 400;
+    const double aspect_ratio = 3.0 / 2;
+    const int image_width = 1200;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
 
     // Scene
@@ -181,6 +261,10 @@ int main(int argc,char** argv)
 
     CHECK(cudaMalloc(&output_d, image_width * image_height * sizeof(float3)));
 
+
+
+    printf("Rendering scene...\n");
+
     render << <grid, block >> > (
         image_width,
         image_height,
@@ -191,6 +275,11 @@ int main(int argc,char** argv)
     color* output_h = (color*)malloc(image_width * image_height * sizeof(float3));
 
     cudaDeviceSynchronize();
+
+    printf("Rendering scene...OK\n");
+
+
+    printf("Saving to file...\n");
 
     CHECK(cudaMemcpy(output_h, output_d, image_width * image_height * sizeof(float3), cudaMemcpyDeviceToHost));
 
@@ -204,8 +293,12 @@ int main(int argc,char** argv)
     }
     fclose(fp);
 
+    printf("Saving to file...OK\n");
+
+
     cudaFree(output_d);
     free(output_h);
     cudaDeviceReset();
+    printf("Done\n");
     return 0;
 }
