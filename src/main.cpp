@@ -39,12 +39,14 @@ THE SOFTWARE.*/
 #include "material.h"
 #include "bvh.h"
 #include "aarect.h"
+#include "texture.h"
 
 static std::vector<std::vector<color>> gCanvas;		//Canvas
 
 // The width and height of the screen
 const auto aspect_ratio = 3.0 / 2.0;
-const int gWidth = 1200;
+// const int gWidth = 1200;
+const int gWidth = 480;
 const int gHeight = static_cast<int>(gWidth / aspect_ratio);
 
 void rendering();
@@ -116,11 +118,11 @@ HittableList random_scene() {
 
 HittableList simple_light() {
 	HittableList objects;
-	auto pertext = make_shared<texture>(4);
+	/*auto pertext = make_shared<texture>(4);
 	objects.add(make_shared<Sphere>(point3(0, -1000, 0), 1000,
 		make_shared<Lambertian>(pertext)));
 	objects.add(make_shared<Sphere>(point3(0, 2, 0), 2, make_shared<Lambertian>
-		(pertext)));
+		(pertext)));*/
 	auto difflight = make_shared<diffuse_light>(color(4, 4, 4));
 	objects.add(make_shared<xy_rect>(3, 5, 1, 3, -2, difflight));
 	return objects;
@@ -271,7 +273,7 @@ void rendering()
 				auto u = (i + random_double()) / (image_width - 1);
 				auto v = (j + random_double()) / (image_height - 1);
 				ray r = cam.get_ray(u, v);
-				pixel_color += ray_color(r, world, max_depth);
+				pixel_color += ray_color(r, color(0.5, 0.7, 1.0), world, max_depth);
 			}
 			write_color(i, j, pixel_color/samples_per_pixel);
 		}
