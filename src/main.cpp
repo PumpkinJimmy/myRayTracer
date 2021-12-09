@@ -44,7 +44,8 @@ THE SOFTWARE.*/
 static std::vector<std::vector<color>> gCanvas;		//Canvas
 
 // The width and height of the screen
-const auto aspect_ratio = 3.0 / 2.0;
+// const auto aspect_ratio = 3.0 / 2.0;
+const auto aspect_ratio = 1.0;
 // const int gWidth = 1200;
 const int gWidth = 480;
 const int gHeight = static_cast<int>(gWidth / aspect_ratio);
@@ -72,7 +73,9 @@ color ray_color(const ray& r, const color& background, const Hittable& world, in
 
 HittableList random_scene() {
 	auto world = HittableList();
-	auto ground_meterial = Lambertian::create(color(0.5, 0.5, 0.5));
+	auto checker = make_shared<checker_texture>(color(0.2, 0.3, 0.1),
+		color(0.9, 0.9, 0.9));
+	auto ground_meterial = Lambertian::create(checker);
 	world.add(Sphere::create(point3(0, -1000, 0), 1000, ground_meterial));
 	for (int a = -11; a < 11; a++) {
 		for (int b = -11; b < 11; b++) {
@@ -123,6 +126,10 @@ HittableList simple_light() {
 		make_shared<Lambertian>(pertext)));
 	objects.add(make_shared<Sphere>(point3(0, 2, 0), 2, make_shared<Lambertian>
 		(pertext)));*/
+	auto checker = make_shared<checker_texture>(color(0.2, 0.3, 0.1),
+		color(0.9, 0.9, 0.9));
+	objects.add(Sphere::create(point3(0, -1000, 0), 1000, Lambertian::create(checker)));
+	objects.add(Sphere::create(point3(0, 2, 0), 2, Lambertian::create(checker)));
 	auto difflight = make_shared<diffuse_light>(color(4, 4, 4));
 	objects.add(make_shared<xy_rect>(3, 5, 1, 3, -2, difflight));
 	return objects;
@@ -210,20 +217,50 @@ void rendering()
 
 	const int image_width = gWidth;
 	const int image_height = gHeight;
-	const int samples_per_pixel = 500;
+	
 	const int max_depth = 50;
 
+	int samples_per_pixel = 500;
 	// World
-	BVHNode world(random_scene(), 0.0001, inf);
-	// auto world = random_scene();
+	// BVHNode world(random_scene(), 0.0001, inf);
 
+	BVHNode world;
 	point3 lookfrom(13, 2, 3);
 	point3 lookat(0, 0, 0);
 	vec3 vup(0, 1, 0);
 	auto dist_to_focus = 10.0;
 	auto aperture = 0.1;
+	color background(color(0.5, 0.7, 1.0));
+	double vfov = 20.0;
 
-	Camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus);
+	switch (6) {
+	default:
+	case 0:
+		world = BVHNode(random_scene(), 0, 0);
+		break;
+	
+	case 5:
+		world = BVHNode(simple_light(), 0, 0);
+		background = color(0, 0, 0);
+		lookfrom = point3(26, 3, 6);
+		lookat = point3(0, 2, 0);
+		vfov = 20.0;
+		break;
+	case 6:
+		world = BVHNode(cornell_box(), 0, 0);
+		background = color(0, 0, 0);
+		lookfrom = point3(278, 278, -800);
+		lookat = point3(278, 278, 0);
+		vfov = 40.0;
+		samples_per_pixel = 10000;
+		break;
+	}
+	
+	// auto world = random_scene();
+
+	
+
+	Camera cam(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus);
 
 	//HittableList world;
 
@@ -273,7 +310,7 @@ void rendering()
 				auto u = (i + random_double()) / (image_width - 1);
 				auto v = (j + random_double()) / (image_height - 1);
 				ray r = cam.get_ray(u, v);
-				pixel_color += ray_color(r, color(0.5, 0.7, 1.0), world, max_depth);
+				pixel_color += ray_color(r, background, world, max_depth);
 			}
 			write_color(i, j, pixel_color/samples_per_pixel);
 		}
