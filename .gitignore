@@ -18,3 +18,4 @@ scratch/
 !cuda/build/MyRayTracer_CUDA.sln
 !cuda/build/MyRayTracer_CUDA.vcxproj
 !cuda/build/MyRayTracer_CUDA.vcxproj.filters
+report/
