@@ -48,7 +48,10 @@ static std::vector<std::vector<color>> gCanvas;		//Canvas
 const auto aspect_ratio = 1.0;
 // const int gWidth = 1200;
 const int gWidth = 480;
-const int gHeight = static_cast<int>(gWidth / aspect_ratio);
+//const int gHeight = static_cast<int>(gWidth / aspect_ratio);
+const int gHeight = 480;
+
+color render_buf[gHeight][gWidth];
 
 void rendering();
 
@@ -233,7 +236,7 @@ void rendering()
 	color background(color(0.5, 0.7, 1.0));
 	double vfov = 20.0;
 
-	switch (6) {
+	switch (0) {
 	default:
 	case 0:
 		world = BVHNode(random_scene(), 0, 0);
@@ -301,19 +304,19 @@ void rendering()
 
 	
 #pragma omp parallel for schedule(dynamic)
-	for (int j = image_height - 1; j >= 0; j--)
-	{
-		for (int i = 0; i < image_width; i++)
+	for (int s = 0; s < samples_per_pixel; s++) {
+		for (int j = image_height - 1; j >= 0; j--)
 		{
-			color pixel_color(0, 0, 0);
-			for (int s = 0; s < samples_per_pixel; s++) {
+			for (int i = 0; i < image_width; i++)
+			{
 				auto u = (i + random_double()) / (image_width - 1);
 				auto v = (j + random_double()) / (image_height - 1);
 				ray r = cam.get_ray(u, v);
-				pixel_color += ray_color(r, background, world, max_depth);
+				render_buf[i][j] += ray_color(r, background, world, max_depth);
+				write_color(i, j, render_buf[i][j]/ (s+1));
 			}
-			write_color(i, j, pixel_color/samples_per_pixel);
 		}
+		
 	}
 
 
