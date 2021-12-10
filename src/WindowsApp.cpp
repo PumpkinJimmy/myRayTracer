@@ -11,6 +11,7 @@ bool WindowsApp::setup(int width, int height, std::string title)
 	m_screen_width = width;
 	m_screen_height = height;
 	m_window_title = title;
+	m_title = nullptr;
 
 	m_last_mouse_x = 0;
 	m_last_mouse_y = 0;
@@ -130,6 +131,7 @@ void WindowsApp::updateScreenSurface(const std::vector<std::vector<color>> &canv
 	}
 	SDL_UnlockSurface(m_screen_surface);
 	SDL_UpdateWindowSurface(m_window_handle);
+	if (m_title) SDL_SetWindowTitle(m_window_handle, m_title);
 }
 
 WindowsApp::ptr WindowsApp::getInstance()
