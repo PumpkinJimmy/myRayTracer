@@ -36,7 +36,7 @@ public:
 	point3 maximum;
 };
 
-AABB surrounding_box(AABB box0, AABB box1) {
+inline AABB surrounding_box(AABB box0, AABB box1) {
 	point3 small(fmin(box0.min().x(), box1.min().x()), 
 		fmin(box0.min().y(), box1.min().y()), 
 		fmin(box0.min().z(), box1.min().z()));

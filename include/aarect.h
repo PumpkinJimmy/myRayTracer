@@ -64,7 +64,7 @@ public:
     double y0, y1, z0, z1, k;
 };
 
-bool xy_rect::hit(const ray& r, double t0, double t1, hit_record& rec) const {
+inline bool xy_rect::hit(const ray& r, double t0, double t1, hit_record& rec) const {
     auto t = (k - r.origin().z()) / r.direction().z();
     if (t < t0 || t > t1)
         return false;
@@ -82,7 +82,7 @@ bool xy_rect::hit(const ray& r, double t0, double t1, hit_record& rec) const {
     return true;
 }
 
-bool xz_rect::hit(const ray& r, double t0, double t1, hit_record& rec) const {
+inline bool xz_rect::hit(const ray& r, double t0, double t1, hit_record& rec) const {
     auto t = (k - r.origin().y()) / r.direction().y();
     if (t < t0 || t > t1)
         return false;
@@ -100,7 +100,7 @@ bool xz_rect::hit(const ray& r, double t0, double t1, hit_record& rec) const {
     return true;
 }
 
-bool yz_rect::hit(const ray& r, double t0, double t1, hit_record& rec) const {
+inline bool yz_rect::hit(const ray& r, double t0, double t1, hit_record& rec) const {
     auto t = (k - r.origin().x()) / r.direction().x();
     if (t < t0 || t > t1)
         return false;

@@ -40,7 +40,7 @@ public:
 	vector<Hittable::ConstPtr> objects;
 };
 
-bool HittableList::hit(const ray& r, double t_min, double t_max, hit_record& rec) const
+inline bool HittableList::hit(const ray& r, double t_min, double t_max, hit_record& rec) const
 {
 	hit_record tmp;
 	bool hit_any = false;
