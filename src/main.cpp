@@ -42,14 +42,15 @@ THE SOFTWARE.*/
 #include "texture.h"
 
 static std::vector<std::vector<color>> gCanvas;		//Canvas
+static char windowTitle[100] = "";
 
 // The width and height of the screen
 // const auto aspect_ratio = 3.0 / 2.0;
 const auto aspect_ratio = 1.0;
-// const int gWidth = 1200;
-const int gWidth = 480;
+const int gWidth = 800;
+// const int gWidth = 480;
 //const int gHeight = static_cast<int>(gWidth / aspect_ratio);
-const int gHeight = 480;
+const int gHeight = 800;
 
 color render_buf[gHeight][gWidth];
 
@@ -78,6 +79,7 @@ HittableList random_scene() {
 	auto world = HittableList();
 	auto checker = make_shared<checker_texture>(color(0.2, 0.3, 0.1),
 		color(0.9, 0.9, 0.9));
+	auto solid = make_shared<solid_color>(color(0.5, 0.5, 0.5));
 	auto ground_meterial = Lambertian::create(checker);
 	world.add(Sphere::create(point3(0, -1000, 0), 1000, ground_meterial));
 	for (int a = -11; a < 11; a++) {
@@ -181,7 +183,7 @@ int main(int argc, char* args[])
 
 		// Display to the screen
 		winApp->updateScreenSurface(gCanvas);
-
+		winApp->setWindowTitle(windowTitle);
 	}
 
 	renderingThread.join();
@@ -236,7 +238,7 @@ void rendering()
 	color background(color(0.5, 0.7, 1.0));
 	double vfov = 20.0;
 
-	switch (0) {
+	switch (6) {
 	default:
 	case 0:
 		world = BVHNode(random_scene(), 0, 0);
@@ -255,7 +257,7 @@ void rendering()
 		lookfrom = point3(278, 278, -800);
 		lookat = point3(278, 278, 0);
 		vfov = 40.0;
-		samples_per_pixel = 10000;
+		samples_per_pixel = 2000;
 		break;
 	}
 	
@@ -303,8 +305,9 @@ void rendering()
 	// TODO: finish your own ray-tracing renderer according to the given tutorials
 
 	
-#pragma omp parallel for schedule(dynamic)
+
 	for (int s = 0; s < samples_per_pixel; s++) {
+#pragma omp parallel for schedule(dynamic)
 		for (int j = image_height - 1; j >= 0; j--)
 		{
 			for (int i = 0; i < image_width; i++)
@@ -312,11 +315,11 @@ void rendering()
 				auto u = (i + random_double()) / (image_width - 1);
 				auto v = (j + random_double()) / (image_height - 1);
 				ray r = cam.get_ray(u, v);
-				render_buf[i][j] += ray_color(r, background, world, max_depth);
-				write_color(i, j, render_buf[i][j]/ (s+1));
+				render_buf[j][i] += ray_color(r, background, world, max_depth);
+				write_color(i, j, render_buf[j][i]/ (s+1));
 			}
 		}
-		
+		sprintf_s(windowTitle, "%d", s);
 	}
 
 
