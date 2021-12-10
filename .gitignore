@@ -1,7 +1,4 @@
-*.vcxproj
-*.vcxproj.*
 *.cmake
-*.sln
 CMakeCache.txt
 x64/
 CMakeFiles/
