@@ -42,7 +42,7 @@ THE SOFTWARE.*/
 #include "texture.h"
 #include "scene.h"
 
-static std::vector<std::vector<color>> gCanvas;		//Canvas
+std::vector<std::vector<color>> gCanvas;		//Canvas
 static char windowTitle[100] = "";
 
 // The width and height of the screen
@@ -57,6 +57,9 @@ color render_buf[gHeight][gWidth];
 
 void rendering();
 
+// int seed = std::random_device()();
+int seed = 0;
+
 color ray_color(const ray& r, const color& background, const Hittable& world, int depth)
 {
 	hit_record rec;
@@ -65,7 +68,7 @@ color ray_color(const ray& r, const color& background, const Hittable& world, in
 		return color(0, 0, 0);
 
 	// If the ray hits nothing, return the background color.
-	if (!world.hit(r, 0.001, inf, rec))
+	if (!world.hit(r, 0.0001, inf, rec))
 		return background;
 	ray scattered;
 	color attenuation;
@@ -175,12 +178,14 @@ void rendering()
 		vfov = 20.0;
 		break;
 	case 6:
+		// world = cornell_box();
 		world = BVHNode(cornell_box(), 0, 0);
 		background = color(0, 0, 0);
 		lookfrom = point3(278, 278, -800);
 		lookat = point3(278, 278, 0);
 		vfov = 40.0;
 		samples_per_pixel = 2000;
+		aperture = 0;
 		break;
 	}
 	
@@ -190,60 +195,45 @@ void rendering()
 
 	Camera cam(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus);
 
-	//HittableList world;
-
-	/*point3 lookfrom(3, 3, 2);
-	point3 lookat(0, 0, -1);
-	vec3 vup(0, 1, 0);
-	auto dist_to_focus = (lookfrom - lookat).length();
-	auto aperture = 2.0;
-
-	Camera cam(lookfrom,lookat, vup, 20, aspect_ratio, aperture, dist_to_focus);*/
-
-	/*auto material_ground = Lambertian::create(color(0.8, 0.8, 0.0));
-	auto material_center = Lambertian::create(color(0.1, 0.2, 0.5));
-	auto material_left = Dielectric::create(1.5);
-	auto material_right = Metal::create(color(0.8, 0.6, 0.2), 0.0);
-
-	world.add(Sphere::create(point3(0.0, -100.5, -1.0), 100.0, 
-		material_ground));
-	world.add(Sphere::create(point3(0.0, 0.0, -1.0), 0.5, 
-		material_center));
-	world.add(Sphere::create(point3(-1.0, 0.0, -1.0), 0.5, 
-		material_left));
-	world.add(Sphere::create(point3(-1.0, 0.0, -1.0), -0.45,
-		material_left));
-	world.add(Sphere::create(point3(1.0, 0.0, -1.0), 0.5, 
-		material_right));*/
-	/*auto R = cos(pi / 4);
-	auto material_left = Lambertian::create(color(0, 0, 1));
-	auto material_right = Lambertian::create(color(1, 0, 0));
-
-	world.add(Sphere::create(point3(-R, 0, -1), R, material_left));
-	world.add(Sphere::create(point3(R, 0, -1), R, material_right));*/
-
 	// Render
 
 	// The main ray-tracing based rendering loop
 	// TODO: finish your own ray-tracing renderer according to the given tutorials
 
-	
-
-	for (int s = 0; s < samples_per_pixel; s++) {
 #pragma omp parallel for schedule(dynamic)
 		for (int j = image_height - 1; j >= 0; j--)
 		{
 			for (int i = 0; i < image_width; i++)
 			{
-				auto u = (i + random_double()) / (image_width - 1);
-				auto v = (j + random_double()) / (image_height - 1);
-				ray r = cam.get_ray(u, v);
-				render_buf[j][i] += ray_color(r, background, world, max_depth);
-				write_color(i, j, render_buf[j][i]/ (s+1));
+				for (int s = 0; s < samples_per_pixel; s++) {
+					auto u = (i + random_double()) / (image_width - 1);
+					auto v = (j + random_double()) / (image_height - 1);
+					ray r = cam.get_ray(u, v);
+					render_buf[j][i] += ray_color(r, background, world, max_depth)/ samples_per_pixel;
+				}
+				write_color(i, j, render_buf[j][i]);
 			}
 		}
-		sprintf_s(windowTitle, "%d", s);
-	}
+	//
+	//
+	//for (int s = 0; s < samples_per_pixel; s++) {
+	//	for (int j = image_height - 1; j >= 0; j--)
+	//	{
+	//		for (int i = 0; i < image_width; i++)
+	//		{
+	//			auto u = (i + random_double()) / (image_width - 1);
+	//			auto v = (j + random_double()) / (image_height - 1);
+	//			ray r = cam.get_ray(u, v);
+	//			render_buf[j][i] += ray_color(r, background, world, max_depth);
+	//			write_color(i, j, render_buf[j][i]/ (s+1));
+	//			/*if (i == 400 && j == 400) {
+	//				auto tmp = render_buf[j][i] / (s + 1);
+	//				printf("%lf %lf %lf\n", tmp.r(), tmp.g(), tmp.b());
+	//			}*/
+	//		}
+	//	}
+	//	sprintf_s(windowTitle, "%d", s);
+	//}
 
 
 	double endFrame = clock();
