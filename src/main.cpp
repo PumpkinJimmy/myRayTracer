@@ -164,7 +164,7 @@ void rendering()
 	color background(color(0.5, 0.7, 1.0));
 	double vfov = 20.0;
 
-	switch (7) {
+	switch (8) {
 	default:
 	case 0:
 		world = BVHNode(random_scene(), 0, 0);
@@ -193,6 +193,16 @@ void rendering()
 		lookat = point3(0, 0, 0);
 		vfov = 20.0;
 		break;
+	case 8:
+		world = BVHNode(final_scene2(), 0, 0);
+		samples_per_pixel = 200;
+		background = color(0, 0, 0);
+		lookfrom = point3(478, 278, -600);
+		lookat = point3(278, 278, 0);
+		vfov = 40.0;
+		aperture = 0;
+		break;
+
 	}
 	
 	// auto world = random_scene();

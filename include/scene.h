@@ -113,4 +113,78 @@ HittableList earth() {
 	return objects;
 }
 
+HittableList final_scene2() {
+	HittableList boxes1;
+	auto ground = Lambertian::create(color(0.48, 0.83, 0.53));
+
+	const int boxes_per_side = 20;
+	for (int i = 0; i < boxes_per_side; i++) {
+		for (int j = 0; j < boxes_per_side; j++) {
+			auto w = 100.0;
+			auto x0 = -1000.0 + i * w;
+			auto z0 = -1000.0 + j * w;
+			auto y0 = 0.0;
+			auto x1 = x0 + w;
+			auto y1 = random_double(1, 101);
+			auto z1 = z0 + w;
+
+			boxes1.add(make_shared<Box>(point3(x0, y0, z0), point3(x1, y1, z1), ground));
+		}
+	}
+
+	HittableList objects;
+
+	objects.add(make_shared<BVHNode>(boxes1, 0, 1));
+
+	auto light = make_shared<diffuse_light>(color(7, 7, 7));
+	objects.add(make_shared<xz_rect>(123, 423, 147, 412, 554, light));
+
+	auto center1 = point3(400, 400, 200);
+	auto center2 = center1 + vec3(30, 0, 0);
+
+	auto moving_sphere_material = Lambertian::create(color(0.7, 0.3, 0.1));
+	objects.add(Sphere::create(center1, 50, moving_sphere_material));
+	objects.add(Sphere::create(point3(260, 150, 45), 50, Dielectric::create(1.5)));
+	objects.add(Sphere::create(
+		point3(0, 150, 145),
+		50,
+		Metal::create(color(0.8, 0.8, 0.9), 1.0)));
+
+	auto boundary = Sphere::create(
+		point3(360, 150, 145), 70, Dielectric::create(1.5));
+	objects.add(boundary);
+	//boundary = Sphere::create(
+	//	point3(0, 0, 0), 5000, Dielectric::create(1.5));
+
+	auto emat = Lambertian::create(
+		ImageTexture::create(
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\earthmap.jpg"));
+
+	objects.add(Sphere::create(point3(400, 200, 400), 100, emat));
+
+	auto checker = make_shared<checker_texture>(color(0.2, 0.3, 0.1),
+		color(0.9, 0.9, 0.9));
+
+	objects.add(
+		Sphere::create(point3(220, 280, 300), 80, Lambertian::create(checker)));
+
+	HittableList boxes2;
+	auto white = Lambertian::create(color(.73, .73, .73));
+
+	int ns = 1000;
+
+	for (int j = 0; j < ns; j++) {
+		boxes2.add(Sphere::create(point3::random(0, 165), 10, white));
+	}
+
+	objects.add(make_shared<Translate>(
+		make_shared<RotateY>(
+			make_shared<BVHNode>(boxes2, 0, 1), 15),
+		vec3(-100, 270, 395)
+		)
+	);
+	return objects;
+
+}
+
 #endif
