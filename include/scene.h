@@ -103,4 +103,14 @@ HittableList cornell_box() {
 	return objects;
 }
 
+HittableList earth() {
+	// auto earth_texture = ImageTexture::create("../../assets/earthmap.jpg");
+	auto earth_texture = ImageTexture::create("E:\\CG_ws\\project\\myRayTracer\\assets\\earthmap.jpg");
+	auto earth_surface = Lambertian::create(earth_texture);
+	auto globe = Sphere::create(point3(0, 0, 0), 2, earth_surface);
+
+	HittableList objects; objects.add(globe);
+	return objects;
+}
+
 #endif

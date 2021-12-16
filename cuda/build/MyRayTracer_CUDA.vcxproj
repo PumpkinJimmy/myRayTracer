@@ -85,11 +85,8 @@
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</GenerateManifest>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>E:\CG_ws\project\myRayTracer\cuda\include;E:\CG_ws\project\myRayTracer\cuda\thirdparty\include;$(IncludePath)</IncludePath>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>E:\CG_ws\project\myRayTracer\cuda\thirdparty\include;E:\CG_ws\project\myRayTracer\cuda\include;$(IncludePath)</IncludePath>
+    <IncludePath>E:\CG_ws\project\myRayTracer\cuda\include;E:\CG_ws\project\myRayTracer\cuda\thirdparty\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -113,7 +110,7 @@
       <AdditionalOptions>%(AdditionalOptions) -std=c++17 -Xcompiler="/EHsc -Zi -Ob0"</AdditionalOptions>
       <CompileOut>$(IntDir)%(Filename).obj</CompileOut>
       <CudaRuntime>Static</CudaRuntime>
-      <GPUDebugInfo>true</GPUDebugInfo>
+      <GPUDebugInfo>false</GPUDebugInfo>
       <Optimization>Od</Optimization>
       <Runtime>MDd</Runtime>
       <RuntimeChecks>RTC1</RuntimeChecks>
@@ -384,7 +381,6 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClInclude Include="..\include\model.cuh" />
     <ClInclude Include="..\include\ray.cuh" />
     <ClInclude Include="..\include\vec3.cuh" />
-    <ClInclude Include="..\thirdparty\include\cutil_math.h" />
     <ClInclude Include="E:\CG_ws\project\myRayTracer\cuda\include\cudastart.h" />
   </ItemGroup>
   <ItemGroup>

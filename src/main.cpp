@@ -164,7 +164,7 @@ void rendering()
 	color background(color(0.5, 0.7, 1.0));
 	double vfov = 20.0;
 
-	switch (6) {
+	switch (7) {
 	default:
 	case 0:
 		world = BVHNode(random_scene(), 0, 0);
@@ -184,8 +184,14 @@ void rendering()
 		lookfrom = point3(278, 278, -800);
 		lookat = point3(278, 278, 0);
 		vfov = 40.0;
-		samples_per_pixel = 2000;
+		samples_per_pixel = 500;
 		aperture = 0;
+		break;
+	case 7:
+		world = BVHNode(earth(), 0, 0);
+		lookfrom = point3(13, 2, 3);
+		lookat = point3(0, 0, 0);
+		vfov = 20.0;
 		break;
 	}
 	
@@ -200,40 +206,41 @@ void rendering()
 	// The main ray-tracing based rendering loop
 	// TODO: finish your own ray-tracing renderer according to the given tutorials
 
+// #pragma omp parallel for schedule(dynamic)
+		//for (int j = image_height - 1; j >= 0; j--)
+		//{
+		//	for (int i = 0; i < image_width; i++)
+		//	{
+		//		for (int s = 0; s < samples_per_pixel; s++) {
+		//			auto u = (i + random_double()) / (image_width - 1);
+		//			auto v = (j + random_double()) / (image_height - 1);
+		//			ray r = cam.get_ray(u, v);
+		//			render_buf[j][i] += ray_color(r, background, world, max_depth)/ samples_per_pixel;
+		//		}
+		//		write_color(i, j, render_buf[j][i]);
+		//	}
+		//}
+	
+	
+	for (int s = 0; s < samples_per_pixel; s++) {
 #pragma omp parallel for schedule(dynamic)
 		for (int j = image_height - 1; j >= 0; j--)
 		{
 			for (int i = 0; i < image_width; i++)
 			{
-				for (int s = 0; s < samples_per_pixel; s++) {
-					auto u = (i + random_double()) / (image_width - 1);
-					auto v = (j + random_double()) / (image_height - 1);
-					ray r = cam.get_ray(u, v);
-					render_buf[j][i] += ray_color(r, background, world, max_depth)/ samples_per_pixel;
-				}
-				write_color(i, j, render_buf[j][i]);
+				auto u = (i + random_double()) / (image_width - 1);
+				auto v = (j + random_double()) / (image_height - 1);
+				ray r = cam.get_ray(u, v);
+				render_buf[j][i] += ray_color(r, background, world, max_depth);
+				write_color(i, j, render_buf[j][i]/ (s+1));
+				/*if (i == 400 && j == 400) {
+					auto tmp = render_buf[j][i] / (s + 1);
+					printf("%lf %lf %lf\n", tmp.r(), tmp.g(), tmp.b());
+				}*/
 			}
 		}
-	//
-	//
-	//for (int s = 0; s < samples_per_pixel; s++) {
-	//	for (int j = image_height - 1; j >= 0; j--)
-	//	{
-	//		for (int i = 0; i < image_width; i++)
-	//		{
-	//			auto u = (i + random_double()) / (image_width - 1);
-	//			auto v = (j + random_double()) / (image_height - 1);
-	//			ray r = cam.get_ray(u, v);
-	//			render_buf[j][i] += ray_color(r, background, world, max_depth);
-	//			write_color(i, j, render_buf[j][i]/ (s+1));
-	//			/*if (i == 400 && j == 400) {
-	//				auto tmp = render_buf[j][i] / (s + 1);
-	//				printf("%lf %lf %lf\n", tmp.r(), tmp.g(), tmp.b());
-	//			}*/
-	//		}
-	//	}
-	//	sprintf_s(windowTitle, "%d", s);
-	//}
+		sprintf_s(windowTitle, "%d", s);
+	}
 
 
 	double endFrame = clock();

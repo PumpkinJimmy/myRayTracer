@@ -10,7 +10,16 @@
     <ClInclude Include="..\include\common.cuh">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\cutil_double.cuh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\include\hittable.cuh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\hittable_list.cuh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\material.cuh">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\model.cuh">
@@ -20,18 +29,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\vec3.cuh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\material.cuh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\hittable_list.cuh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\include\cutil_math.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\cutil_double.cuh">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -2,8 +2,9 @@
 
 #ifndef TEXTURE_H
 #define TEXTURE_H
-
+#define STB_IMAGE_IMPLEMENTATION
 #include "ray.h"
+#include "stb_image.h"
 
 class texture {
 public:
@@ -46,6 +47,66 @@ public:
 public:
     shared_ptr<texture> odd;
     shared_ptr<texture> even;
+};
+
+class ImageTexture : public texture {
+public:
+    const static int bytes_per_pixel = 3;
+    typedef shared_ptr<ImageTexture> Ptr;
+    typedef shared_ptr<const ImageTexture> ConstPtr;
+
+    ImageTexture()
+        : data(nullptr), width(0), height(0), bytes_per_scanline(0) {}
+    ImageTexture(const char* filename) {
+        auto components_per_pixel = bytes_per_pixel;
+
+        data = stbi_load(
+            filename, &width, &height, &components_per_pixel,
+            components_per_pixel);
+        if (!data) {
+            std::cerr << "ERROR: Could not load texture image file " << filename << ".\n";
+        }
+        bytes_per_scanline = bytes_per_pixel * width;
+    }
+    
+
+
+    template <typename... Args>
+    static ImageTexture::Ptr create(Args... args) {
+        return make_shared<ImageTexture>(args...);
+    }
+
+    ~ImageTexture() {
+        delete data;
+    }
+
+    virtual color value(double u, double v, const vec3& p) const override {
+        if (data == nullptr) {
+            return color(0, 1, 1);
+        }
+
+        u = clamp(u, 0, 1);
+        v = 1.0 - clamp(v, 0, 1);
+
+        auto i = static_cast<int>(u * width);
+        auto j = static_cast<int>(v * height);
+
+        if (i >= width) i = width - 1;
+        if (j >= height) j = height - 1;
+
+        const auto color_scale = 1.0 / 255.0;
+        auto pixel = data + j * bytes_per_scanline + i * bytes_per_pixel;
+
+        return color(
+            color_scale * pixel[0],
+            color_scale * pixel[1],
+            color_scale * pixel[2]);
+        
+    }
+private:
+    unsigned char* data;
+    int width, height;
+    int bytes_per_scanline;
 };
 
 #endif

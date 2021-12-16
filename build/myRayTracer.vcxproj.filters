@@ -15,6 +15,12 @@
     <ClInclude Include="E:\CG_ws\project\myRayTracer\include\aabb.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="E:\CG_ws\project\myRayTracer\include\aarect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="E:\CG_ws\project\myRayTracer\include\box.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="E:\CG_ws\project\myRayTracer\include\bvh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -36,22 +42,22 @@
     <ClInclude Include="E:\CG_ws\project\myRayTracer\include\ray.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="E:\CG_ws\project\myRayTracer\include\scene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="E:\CG_ws\project\myRayTracer\include\sphere.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="E:\CG_ws\project\myRayTracer\include\texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="E:\CG_ws\project\myRayTracer\include\transform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="E:\CG_ws\project\myRayTracer\include\vec3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\box.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\scene.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\aarect.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\transform.h">
+    <ClInclude Include="..\thirdparty\include\stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
