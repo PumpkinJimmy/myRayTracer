@@ -39,6 +39,9 @@
     <ClInclude Include="E:\CG_ws\project\myRayTracer\include\material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="E:\CG_ws\project\myRayTracer\include\mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="E:\CG_ws\project\myRayTracer\include\ray.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -55,9 +58,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="E:\CG_ws\project\myRayTracer\include\vec3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\include\stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

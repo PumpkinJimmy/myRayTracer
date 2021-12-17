@@ -25,6 +25,7 @@ THE SOFTWARE.*/
 #include <thread>
 #include <iostream>
 #include <cmath>
+#include "mesh.h"
 
 #include "common.h"
 
@@ -86,6 +87,7 @@ color ray_color(const ray& r, const color& background, const Hittable& world, in
 
 int main(int argc, char* args[])
 {
+	loadModel("E:\\CG_ws\\project\\myRayTracer\\assets\\nanosuit\\nanosuit.obj");
 	// Create window app handle
 	WindowsApp::ptr winApp = WindowsApp::getInstance(gWidth, gHeight, "Ray Tracing");
 	if (winApp == nullptr)
@@ -195,7 +197,7 @@ void rendering()
 		break;
 	case 8:
 		world = BVHNode(final_scene2(), 0, 0);
-		samples_per_pixel = 200;
+		samples_per_pixel = 10000;
 		background = color(0, 0, 0);
 		lookfrom = point3(478, 278, -600);
 		lookat = point3(278, 278, 0);

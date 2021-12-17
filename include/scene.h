@@ -162,11 +162,11 @@ HittableList final_scene2() {
 
 	objects.add(Sphere::create(point3(400, 200, 400), 100, emat));
 
-	auto checker = make_shared<checker_texture>(color(0.2, 0.3, 0.1),
-		color(0.9, 0.9, 0.9));
 
 	objects.add(
-		Sphere::create(point3(220, 280, 300), 80, Lambertian::create(checker)));
+		Sphere::create(
+			point3(220, 280, 300), 80, Lambertian::create(make_shared<solid_color>(color(0.2, 0.4, 0.9))))
+	);
 
 	HittableList boxes2;
 	auto white = Lambertian::create(color(.73, .73, .73));
