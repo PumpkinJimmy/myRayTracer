@@ -33,6 +33,9 @@ public:
 	bool getIsMouseLeftButtonPressed() const { return m_mouse_left_button_pressed; }
 
 	void updateScreenSurface(const std::vector<std::vector<color>> &canvas);
+	void setWindowTitle(const char* s) {
+		m_title = s;
+	}
 
 	static WindowsApp::ptr getInstance();
 	static WindowsApp::ptr getInstance(int width, int height, const std::string title = "winApp");
@@ -53,6 +56,7 @@ private:
 	bool m_quit = false;
 
 	//Window title
+	const char* m_title;
 	std::string m_window_title;
 
 	//Event handler

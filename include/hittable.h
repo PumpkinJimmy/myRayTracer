@@ -32,4 +32,6 @@ public:
 	typedef shared_ptr<const Hittable> ConstPtr;
 };
 
+
+
 #endif

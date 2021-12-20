@@ -25,15 +25,17 @@ inline double degree_to_radius(double degree) {
 
 inline int random_int(int min, int max) {
 	// int from [min, max]
-	static std::mt19937 gen;
+	extern int seed;
+	static std::mt19937 gen(seed);
 	std::uniform_int_distribution<> dist(min, max);
 	return dist(gen);
 }
 
 inline double random_double() {
 	// [0, 1)
+	extern int seed;
 	static std::uniform_real_distribution<double> dist(0.0, 1.0);
-	static std::mt19937 gen;
+	static std::mt19937 gen(seed);
 	return dist(gen);
 }
 

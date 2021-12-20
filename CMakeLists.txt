@@ -20,7 +20,8 @@ include_directories(${PROJECT_SOURCE_DIR}/thirdparty/include)
 # Windows or Linux options
 ############################################################
 IF (CMAKE_SYSTEM_NAME MATCHES "Windows")
-	link_directories(${PROJECT_SOURCE_DIR}/libs)
+	link_directories(${PROJECT_SOURCE_DIR}/lib)
+	link_directories(${PROJECT_SOURCE_DIR}/thirdparty/lib)
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 	find_package(SDL2 REQUIRED)
 
@@ -60,6 +61,7 @@ target_link_libraries( ${PROJECT_NAME}
     PRIVATE 
         SDL2
         SDL2main
+        assimp-vc140-mt
 )
 
 # link the target with the pthread (only for ubuntu)
