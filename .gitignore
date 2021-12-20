@@ -5,9 +5,10 @@ CMakeFiles/
 .vs/
 *.dir/
 *.exe
-*.pdb
 *.exp
-*.lib
+*.pdb
+MyRayTracer_CUDA.lib
+main.lib
 scratch/
 .vscode/
 *.ppm
