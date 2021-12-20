@@ -4,6 +4,25 @@
 
 光线追踪渲染器。
 
+## Feature
+- Model
+  - Sphere
+  - Axis Aligned Rectangle
+  - Box
+  - Transform: Translate & RotateY
+- Texture
+  - Solid Color
+  - Diffuse Light
+  - Checker Texture
+  - Image Texure
+ - Material
+  - Lambertian
+  - Metal
+  - Dielectric
+ - BVH
+ - CUDA Acceleration
+   - by now, only support sphere & simple material, no texture
+
 ## Windows平台使用
 
 1. `git clone`到本地
