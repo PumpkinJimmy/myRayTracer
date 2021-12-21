@@ -210,7 +210,7 @@ void rendering()
 		break;
 	case 9:
 		world = BVHNode(simple_triangle(), 0, 0);
-		samples_per_pixel = 1;
+		samples_per_pixel = 200;
 		lookfrom = point3(0, 0, 0);
 		lookat = point3(0, 0, -1);
 		vfov = 90.0;

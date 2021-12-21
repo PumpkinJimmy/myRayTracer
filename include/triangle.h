@@ -23,43 +23,16 @@ public:
 		setAABB();
 	}
 	virtual bool hit(const ray& r, double t_min, double t_max, hit_record& rec) const {
-		vec3 e1 = vertices[1].position - vertices[0].position;
-		vec3 e2 = vertices[2].position - vertices[0].position;
-		vec3 tvec = r.orig - vertices[0].position;
-		vec3 pvec = cross(r.dir, e2);
-		auto det = dot(e1, pvec);
-
-		det = 1.0 / det;
-
-		auto u = dot(tvec, pvec) * det;
-
-		if (u < 0.0 || u > 1.0) {
+		double b1, b2;
+		if (!rayIntersect(r, rec.t, b1, b2) || rec.t < t_min || rec.t > t_max) {
 			return false;
 		}
-
-		vec3 qvec = cross(tvec, e1);
-
-		auto v = dot(r.dir, qvec) * det;
-
-		if (v < 0.0 || (u + v) > 1.0) {
-			return false;
-		}
-
-		auto t =  dot(e2, qvec) * det;
-
-		if (t < t_min || t > t_max) {
-			
-			return false;
-		}
-			
-
-		rec.t = t;
-		rec.p = r.at(t);
+		rec.p = r.at(rec.t);
 		rec.mat_ptr = mat_ptr;
-		rec.u = 0; rec.v = 0; rec.normal = vec3(0, 0, -1);
-		// TODO interpolate the normal & uv
+		auto uv = (1 - b1 - b2) * vertices[0].tex_coord + b1 * vertices[1].tex_coord + b2 * vertices[2].tex_coord;
+		rec.u = uv[0]; rec.v = uv[1];
+		rec.normal = (1 - b1 - b2) * vertices[0].normal + b1 * vertices[1].normal + b2 * vertices[2].normal;
 		rec.set_face_normal(r, tri_normal);
-		
 		return true;
 		
 	}
@@ -81,6 +54,33 @@ private:
 	vec3 tri_normal;
 	Material::Ptr mat_ptr;
 	AABB bbox;
+	bool rayIntersect(const ray& r, double& t, double& u, double& v) const {
+		vec3 e1 = vertices[1].position - vertices[0].position;
+		vec3 e2 = vertices[2].position - vertices[0].position;
+		vec3 tvec = r.orig - vertices[0].position;
+		vec3 pvec = cross(r.dir, e2);
+		auto det = dot(e1, pvec);
+
+		det = 1.0 / det;
+
+		u = dot(tvec, pvec) * det;
+
+		if (u < 0.0 || u > 1.0) {
+			return false;
+		}
+
+		vec3 qvec = cross(tvec, e1);
+
+		v = dot(r.dir, qvec) * det;
+
+		if (v < 0.0 || (u + v) > 1.0) {
+			return false;
+		}
+
+		t = dot(e2, qvec) * det;
+
+		return true;
+	}
 	void setAABB() {
 		vec3 min_p = vertices[0].position, max_p = vertices[0].position;
 		for (int i = 1; i < 3; i++) {

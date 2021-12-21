@@ -190,10 +190,21 @@ HittableList final_scene2() {
 
 HittableList simple_triangle() {
 	HittableList objects;
-	auto mat = Lambertian::create(make_shared<solid_color>(0, 0, 1));
-	Vertex v0{ {0.5, 0, -1}, {0, 0, 0}, {0, 0, 0} };
-	Vertex v1{ {-0.5, 0, -1}, {0, 0, 0}, {0, 0, 0} };
-	Vertex v2{ {0, 0.5, -1}, {0, 0, 0}, {0, 0, 0} };
+	auto mat = Lambertian::create(make_shared<solid_color>(color(0, 0, 1)));
+	Vertex v0{ {0.5, 0, -1}, {0, 0, -1}, {1, 0, 0} };
+	Vertex v1{ {-0.5, 0, -1}, {0, 0, -1}, {0, 0, 0} };
+	Vertex v2{ {0, 0.5, -1}, {0, 0, -1}, {0, 1, 0} };
+	auto tri = Triangle::create(v0, v1, v2, mat);
+	objects.add(tri);
+	return objects;
+}
+
+HittableList simple_triangle2() {
+	HittableList objects;
+	auto mat = Lambertian::create(make_shared<ImageTexture>("E:/CG_ws/project/myRayTracer/assets/staircase2/textures/Tiles.tga"));
+	Vertex v0{ {0.5, 0, -1}, {0, 0, -1}, {1, 0, 0} };
+	Vertex v1{ {-0.5, 0, -1}, {0, 0, -1}, {0, 0, 0} };
+	Vertex v2{ {0, 0.5, -1}, {0, 0, -1}, {0, 1, 0} };
 	auto tri = Triangle::create(v0, v1, v2, mat);
 	objects.add(tri);
 	return objects;
