@@ -10,6 +10,7 @@
 #include "aarect.h"
 #include "box.h"
 #include "transform.h"
+#include "triangle.h"
 
 HittableList random_scene() {
 	auto world = HittableList();
@@ -105,7 +106,7 @@ HittableList cornell_box() {
 
 HittableList earth() {
 	// auto earth_texture = ImageTexture::create("../../assets/earthmap.jpg");
-	auto earth_texture = ImageTexture::create("E:\\CG_ws\\project\\myRayTracer\\assets\\earthmap.jpg");
+	auto earth_texture = ImageTexture::create("E:/CG_ws/project/myRayTracer/assets/earthmap.jpg");
 	auto earth_surface = Lambertian::create(earth_texture);
 	auto globe = Sphere::create(point3(0, 0, 0), 2, earth_surface);
 
@@ -185,6 +186,28 @@ HittableList final_scene2() {
 	);
 	return objects;
 
+}
+
+HittableList simple_triangle() {
+	HittableList objects;
+	auto mat = Lambertian::create(make_shared<solid_color>(color(0, 0, 1)));
+	Vertex v0{ {0.5, 0, -1}, {0, 0, -1}, {1, 0, 0} };
+	Vertex v1{ {-0.5, 0, -1}, {0, 0, -1}, {0, 0, 0} };
+	Vertex v2{ {0, 0.5, -1}, {0, 0, -1}, {0, 1, 0} };
+	auto tri = Triangle::create(v0, v1, v2, mat);
+	objects.add(tri);
+	return objects;
+}
+
+HittableList simple_triangle2() {
+	HittableList objects;
+	auto mat = Lambertian::create(make_shared<ImageTexture>("E:/CG_ws/project/myRayTracer/assets/staircase2/textures/Tiles.tga"));
+	Vertex v0{ {0.5, 0, -1}, {0, 0, -1}, {1, 0, 0} };
+	Vertex v1{ {-0.5, 0, -1}, {0, 0, -1}, {0, 0, 0} };
+	Vertex v2{ {0, 0.5, -1}, {0, 0, -1}, {0, 1, 0} };
+	auto tri = Triangle::create(v0, v1, v2, mat);
+	objects.add(tri);
+	return objects;
 }
 
 #endif

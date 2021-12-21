@@ -119,6 +119,10 @@ inline vec3 unit_vector(vec3 v) {
 	return v / v.length();
 }
 
+inline vec3 normalize(vec3 v) {
+	return v / v.length();
+}
+
 inline vec3 random_in_unit_sphere() {
 	while (true) {
 		auto p = vec3::random(-1, 1);

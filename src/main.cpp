@@ -69,8 +69,10 @@ color ray_color(const ray& r, const color& background, const Hittable& world, in
 		return color(0, 0, 0);
 
 	// If the ray hits nothing, return the background color.
-	if (!world.hit(r, 0.0001, inf, rec))
+	if (!world.hit(r, 0.0001, inf, rec)) {
 		return background;
+	}
+		
 	ray scattered;
 	color attenuation;
 	color emitted = rec.mat_ptr->emitted(rec.u, rec.v, rec.p);
@@ -87,7 +89,9 @@ color ray_color(const ray& r, const color& background, const Hittable& world, in
 
 int main(int argc, char* args[])
 {
-	loadModel("E:\\CG_ws\\project\\myRayTracer\\assets\\nanosuit\\nanosuit.obj");
+	// loadModel("../../assets/nanosuit/nanosuit.obj");
+	loadModel("E:/CG_ws/project/myRayTracer/assets/nanosuit/nanosuit.obj");
+	// loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh002.ply");
 	// Create window app handle
 	WindowsApp::ptr winApp = WindowsApp::getInstance(gWidth, gHeight, "Ray Tracing");
 	if (winApp == nullptr)
@@ -166,7 +170,7 @@ void rendering()
 	color background(color(0.5, 0.7, 1.0));
 	double vfov = 20.0;
 
-	switch (8) {
+	switch (9) {
 	default:
 	case 0:
 		world = BVHNode(random_scene(), 0, 0);
@@ -204,6 +208,15 @@ void rendering()
 		vfov = 40.0;
 		aperture = 0;
 		break;
+	case 9:
+		world = BVHNode(simple_triangle(), 0, 0);
+		samples_per_pixel = 200;
+		lookfrom = point3(0, 0, 0);
+		lookat = point3(0, 0, -1);
+		vfov = 90.0;
+		aperture = 0;
+		break;
+
 
 	}
 	
@@ -235,7 +248,7 @@ void rendering()
 	
 	
 	for (int s = 0; s < samples_per_pixel; s++) {
-#pragma omp parallel for schedule(dynamic)
+// #pragma omp parallel for schedule(dynamic)
 		for (int j = image_height - 1; j >= 0; j--)
 		{
 			for (int i = 0; i < image_width; i++)

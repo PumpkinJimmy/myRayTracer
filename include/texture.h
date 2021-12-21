@@ -5,6 +5,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "ray.h"
 #include "stb_image.h"
+#include <filesystem>
+
+namespace fs = std::filesystem;
 
 class texture {
 public:
@@ -58,6 +61,9 @@ public:
     ImageTexture()
         : data(nullptr), width(0), height(0), bytes_per_scanline(0) {}
     ImageTexture(const char* filename) {
+        if (!fs::is_regular_file(filename)) {
+            std::cerr << "ERROR: No such image file: " << filename << std::endl;
+        }
         auto components_per_pixel = bytes_per_pixel;
 
         data = stbi_load(
