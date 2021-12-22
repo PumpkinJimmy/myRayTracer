@@ -1,0 +1,7 @@
+3 big ball
+- openmp 127s
+- CUDA 24s
+
+3 big ball, 16 small ball
+- openmp 146s
+- CUDA 84s

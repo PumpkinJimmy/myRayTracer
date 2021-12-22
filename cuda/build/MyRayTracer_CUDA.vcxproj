@@ -87,6 +87,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>E:\CG_ws\project\myRayTracer\cuda\include;E:\CG_ws\project\myRayTracer\cuda\thirdparty\include;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\CG_ws\project\myRayTracer\cuda\thirdparty\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -199,6 +200,7 @@
     <CudaLink>
       <AdditionalOptions>-forward-unknown-to-host-compiler -Wno-deprecated-gpu-targets </AdditionalOptions>
       <PerformDeviceLink>false</PerformDeviceLink>
+      <AdditionalLibraryDirectories>E:\CG_ws\project\myRayTracer\cuda\thirdparty\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </CudaLink>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
@@ -371,7 +373,6 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="..\src\main.cu" />
     <ClInclude Include="..\include\camera.cuh" />
     <ClInclude Include="..\include\common.cuh" />
     <ClInclude Include="..\include\cutil_double.cuh" />
@@ -390,6 +391,9 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="..\src\main.cu" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

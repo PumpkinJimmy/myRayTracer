@@ -119,8 +119,8 @@ __global__ void initScene() {
 
     // ======= Final Scene =========
 
-    int rcnt = 22;
-    int ccnt = 22;
+    int rcnt = 4;
+    int ccnt = 4;
     sps = new Hittable::Ptr[rcnt * ccnt + 4];
     if (sps == NULL) {
         printf("Mem. Allocate Fail\n");

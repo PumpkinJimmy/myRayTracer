@@ -12,6 +12,57 @@
 #include "transform.h"
 #include "triangle.h"
 
+
+HittableList random_scene_simple() {
+	auto world = HittableList();
+	auto checker = make_shared<checker_texture>(color(0.2, 0.3, 0.1),
+		color(0.9, 0.9, 0.9));
+	auto solid = make_shared<solid_color>(color(0.5, 0.5, 0.5));
+	auto ground_meterial = Lambertian::create(solid);
+	world.add(Sphere::create(point3(0, -1000, 0), 1000, ground_meterial));
+
+	for (int a = -2; a < 2; a++) {
+		for (int b = -2; b < 2; b++) {
+			auto choose_mat = random_double();
+			point3 center(a + 0.9 * random_double(), 0.2, b + 0.9 * random_double());
+
+			if ((center - point3(4, 0.2, 0)).length() > 0.9) {
+				Material::Ptr sphere_material;
+				if (choose_mat < 0.8) {
+					// diffuse
+					auto albedo = color::random() * color::random();
+					sphere_material = Lambertian::create(albedo);
+					world.add(Sphere::create(center, 0.2, sphere_material));
+				}
+				else if (choose_mat < 0.95) {
+					// metal
+					auto albedo = color::random(0.5, 1);
+					auto fuzz = random_double(0, 0.5);
+					sphere_material = Metal::create(albedo, fuzz);
+					world.add(Sphere::create(center, 0.2, sphere_material));
+				}
+				else {
+					// glass
+					sphere_material = Dielectric::create(1.5);
+					world.add(Sphere::create(center, 0.2, sphere_material));
+				}
+			}
+		}
+	}
+
+	auto material1 = Dielectric::create(1.5);
+	world.add(Sphere::create(point3(0, 1, 0), 1.0, material1));
+
+	auto material2 = Lambertian::create(color(0.4, 0.2, 0.1));
+	world.add(Sphere::create(point3(-4, 1, 0), 1.0, material2));
+
+
+	auto material3 = Metal::create(color(0.7, 0.6, 0.5), 0.0);
+	world.add(Sphere::create(point3(4, 1, 0), 1.0, material3));
+
+	return world;
+}
+
 HittableList random_scene() {
 	auto world = HittableList();
 	auto checker = make_shared<checker_texture>(color(0.2, 0.3, 0.1),
@@ -201,12 +252,20 @@ HittableList simple_triangle() {
 
 HittableList simple_triangle2() {
 	HittableList objects;
-	auto mat = Lambertian::create(make_shared<ImageTexture>("E:/CG_ws/project/myRayTracer/assets/staircase2/textures/Tiles.tga"));
+	auto mat = Lambertian::create(make_shared<ImageTexture>("E:/CG_ws/project/myRayTracer/assets/staircase2/textures/wood5.tga"));
 	Vertex v0{ {0.5, 0, -1}, {0, 0, -1}, {1, 0, 0} };
 	Vertex v1{ {-0.5, 0, -1}, {0, 0, -1}, {0, 0, 0} };
 	Vertex v2{ {0, 0.5, -1}, {0, 0, -1}, {0, 1, 0} };
 	auto tri = Triangle::create(v0, v1, v2, mat);
 	objects.add(tri);
+	return objects;
+}
+
+HittableList simple_mesh() {
+	HittableList objects;
+	auto mesh = loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh001.ply");
+	objects.add(mesh);
+
 	return objects;
 }
 

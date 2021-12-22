@@ -8,72 +8,72 @@
 #include <assimp/postprocess.h>
 #include <filesystem>
 #include "triangle.h"
+#include "bvh.h"
 
 namespace fs = std::filesystem;
 
 class Mesh : public Hittable {
 public:
-	Mesh();
-	void loadMesh(aiMesh*);
-	// 下面2行暂时顶替一下
-	//virtual bool hit(const ray& r, double t_min, double t_max, hit_record& rec) const;
-	//virtual bool bounding_box(double time0, double time1, AABB& output_box) const;
+
+	typedef shared_ptr<Mesh> Ptr;
+	Mesh(aiMesh* ai_mesh = nullptr) {
+		if (ai_mesh) loadMesh(ai_mesh);
+	}
+	bool loadMesh(aiMesh* ai_mesh) {
+		if (!ai_mesh) return false;
+		HittableList hit_faces;
+		vec3 min_p(inf, inf, inf), max_p(-inf, -inf, -inf);
+		for (int i = 0; i < ai_mesh->mNumVertices; i++)
+		{
+			auto vertex = make_shared<Vertex>();
+			if (ai_mesh->HasPositions())
+			{
+				vertex->position.e[0] = ai_mesh->mVertices[i].x;
+				vertex->position.e[1] = ai_mesh->mVertices[i].y;
+				vertex->position.e[2] = ai_mesh->mVertices[i].z;
+				min_p = min(min_p, vertex->position);
+				max_p = max(max_p, vertex->position);
+			}
+			if (ai_mesh->HasTextureCoords(0))
+			{
+				vertex->tex_coord.e[0] = ai_mesh->mTextureCoords[0][i].x;
+				vertex->tex_coord.e[1] = ai_mesh->mTextureCoords[0][i].y;
+			}
+			if (ai_mesh->HasNormals())
+			{
+				vertex->normal.e[0] = ai_mesh->mNormals[i].x;
+				vertex->normal.e[1] = ai_mesh->mNormals[i].y;
+				vertex->normal.e[2] = ai_mesh->mNormals[i].z;
+			}
+			vertices.push_back(vertex);
+		}
+
+		auto material = Lambertian::create(color(0.5, 0, 0.5));
+		for (int i = 0; i < ai_mesh->mNumFaces; i++)
+		{
+			auto face = ai_mesh->mFaces[i];
+			Triangle::Ptr prt = make_shared<Triangle>(vertices[face.mIndices[0]], vertices[face.mIndices[1]], vertices[face.mIndices[2]], material);
+			faces.push_back(prt);
+			hit_faces.add(prt);
+		}
+		hit_node = BVHNode(hit_faces, 0, 0);
+		bbox = AABB(min_p - vec3(0.0001, 0.0001, 0.0001), max_p + vec3(0.0001, 0.0001, 0.0001));
+	}
+	virtual bool hit(const ray& r, double t_min, double t_max, hit_record& rec) const {
+		return hit_node.hit(r, t_min, t_max, rec);
+	}
+	virtual bool bounding_box(double time0, double time1, AABB& output_box) const {
+		output_box = bbox;
+		return true;
+	}
 private:
+	std::vector<Vertex::Ptr> vertices;
 	std::vector<Triangle::Ptr> faces;
+	AABB bbox;
+	BVHNode hit_node;
 };
 
-bool processMesh(const aiMesh* meshPtr, const aiScene* scene)
-{
-	if (!meshPtr || !scene) return false;
-	std::vector<Triangle::Ptr> faces;
-	std::vector<Vertex> vertData;
-	for (int i = 0; i < meshPtr->mNumVertices; i++)
-	{
-		Vertex vertex;
-		if (meshPtr->HasPositions())
-		{
-			vertex.position.e[0] = meshPtr->mVertices[i].x;
-			vertex.position.e[1] = meshPtr->mVertices[i].y;
-			vertex.position.e[2] = meshPtr->mVertices[i].z;
-		}
-		if (meshPtr->HasTextureCoords(0))
-		{
-			vertex.tex_coord.e[0] = meshPtr->mTextureCoords[0][i].x;
-			vertex.tex_coord.e[1] = meshPtr->mTextureCoords[0][i].y;
-		}
-		if (meshPtr->HasNormals())
-		{
-			vertex.normal.e[0] = meshPtr->mNormals[i].x;
-			vertex.normal.e[1] = meshPtr->mNormals[i].y;
-			vertex.normal.e[2] = meshPtr->mNormals[i].z;
-		}
-		vertData.push_back(vertex);
-	}
-	
-	auto material = Lambertian::create(color(1, 0, 0));
-	for (int i = 0; i < meshPtr->mNumFaces; i++)
-	{
-		aiFace face = meshPtr->mFaces[i];
-		Triangle triangle(vertData[face.mIndices[0]], vertData[face.mIndices[1]], vertData[face.mIndices[2]], material);
-		Triangle::Ptr prt(&triangle);
-		faces.push_back(prt);
-	}
-}
-
-bool processNode(const aiNode* node, const aiScene* scene)
-{
-	if (!node || !scene) return false;
-	for (int i = 0; i < node->mNumMeshes; i++)
-	{
-		const aiMesh* meshPtr = scene->mMeshes[node->mMeshes[i]];
-		processMesh(meshPtr, scene);
-	}
-	for (int i = 0; i < node->mNumChildren; i++)
-		processNode(node->mChildren[i], scene);
-	return true;
-}
-
-void loadModel(std::string path)
+Mesh::Ptr loadModel(std::string path)
 {
 	if (!fs::is_regular_file(path)) {
 		std::cerr << "ERROR::loadModel: No such file " << path << std::endl;
@@ -83,8 +83,11 @@ void loadModel(std::string path)
 		aiProcess_Triangulate | aiProcess_FlipUVs);
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
 		std::cerr << "ERROR::Assimp: " << importer.GetErrorString() << std::endl;
-		return;
+		return make_shared<Mesh>();
 	}
+
+	auto mesh = make_shared<Mesh>(scene->mMeshes[0]);
+	return mesh;
 
 	//processNode(scene->mRootNode, scene);
 	
