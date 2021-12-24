@@ -275,12 +275,17 @@ HittableList simple_mesh() {
 	mesh_floor->setMaterial(Lambertian::create(texture_tiles));
 	objects.add(mesh_floor);
 
+	auto mesh12 = loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh012.ply");
+	mesh12->setMaterial(Lambertian::create(color(0.893289, 0.893289, 0.893289)));
+	objects.add(mesh12);
+
 	auto mesh_wall = loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh009.ply");
 	mesh_wall->setMaterial(Lambertian::create(color(0.893289, 0.893289, 0.893289)));
 	objects.add(mesh_wall);
-	/*auto mesh0 = loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh000.ply");
+	auto mesh0 = loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh000.ply");
 	mesh0->setMaterial(Lambertian::create(color(0.893289, 0.893289, 0.893289)));
-	objects.add(mesh0);*/
+	// mesh0->setMaterial(Lambertian::create(color(0.1, 0.1, 0.1)));
+	objects.add(mesh0);
 	
 
 	auto mesh16 = loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh016.ply");
@@ -293,14 +298,28 @@ HittableList simple_mesh() {
 
 	auto mesh18 = loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh018.ply");
 	mesh18->setMaterial(Lambertian::create(texture_wallpaper));
-	// mesh18->setMaterial(Lambertian::create(color(255, 0, 255)));
+	//mesh18->setMaterial(Lambertian::create(color(255, 0, 255)));
 	objects.add(mesh18);
 
 	auto mesh14 = loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh014.ply");
-	mesh14->setMaterial(Dielectric::create(0.3));
-	//mesh14->setMaterial(Dielectric::create(1.5));
+	mesh14->setMaterial(Dielectric::create(1.5));
 	//mesh14->setMaterial(Metal::create(color(0.9, 0.9, 0.9), 1.0));
 	objects.add(mesh14);
+
+	auto mesh10 = loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh010.ply");
+	auto mesh15 = loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh015.ply");
+	auto mesh2 = loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh002.ply");
+	auto mesh7 = loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh007.ply");
+	mesh10->setMaterial(Metal::create(color(0.9, 0.9, 0.9), 1.0));
+	mesh15->setMaterial(Metal::create(color(0.9, 0.9, 0.9), 1.0));
+	mesh2->setMaterial(Metal::create(color(0.9, 0.9, 0.9), 1.0));
+	mesh7->setMaterial(Metal::create(color(0.9, 0.9, 0.9), 1.0));
+	objects.add(mesh10);
+	objects.add(mesh15);
+	objects.add(mesh2);
+	objects.add(mesh7);
+
+	
 	
 
 	return objects;
@@ -310,6 +329,18 @@ HittableList bunny() {
 	HittableList objects;
 	auto mesh = loadModel("E:\\CG_ws\\assets\\models\\bunny.tar\\bunny\\reconstruction\\bun_zipper_res3.ply");
 	objects.add(mesh);
+
+	return objects;
+
+}
+
+HittableList simple_mesh2() {
+	HittableList objects;
+
+	auto mesh0 = loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh000.ply");
+	mesh0->setMaterial(Lambertian::create(color(0.893289, 0.893289, 0.893289)));
+	objects.add(mesh0);
+	
 
 	return objects;
 }

@@ -25,6 +25,7 @@ public:
 		e2 = vertices[2]->position - vertices[0]->position;
 		tri_normal = calNormal(v0, v1, v2);
 		setAABB();
+		hasNorm = false;
 	}
 	Triangle(const Vertex& v0, const Vertex& v1, const Vertex& v2, Material::Ptr m)
 		: Triangle(shared_ptr<Vertex>(new Vertex(v0)), shared_ptr<Vertex>(new Vertex(v1)), shared_ptr<Vertex>(new Vertex(v2)), m) {
@@ -38,12 +39,21 @@ public:
 		if (!rayIntersect(r, rec.t, b1, b2) || rec.t < t_min || rec.t > t_max) {
 			return false;
 		}
+		
 		rec.p = r.at(rec.t);
 		rec.mat_ptr = mat_ptr;
 		auto uv = (1 - b1 - b2) * vertices[0]->tex_coord + b1 * vertices[1]->tex_coord + b2 * vertices[2]->tex_coord;
 		rec.u = uv[0]; rec.v = uv[1];
-		rec.normal = (1 - b1 - b2) * vertices[0]->normal + b1 * vertices[1]->normal + b2 * vertices[2]->normal;
-		rec.set_face_normal(r, tri_normal);
+		if (hasNorm) {
+			rec.set_face_normal(r, tri_normal);
+			rec.normal = (1 - b1 - b2) * vertices[0]->normal + b1 * vertices[1]->normal + b2 * vertices[2]->normal;
+		}
+		else {
+			rec.set_face_normal(r, tri_normal);
+		}
+		if (!rec.front_face) {
+			return false;
+		}
 		return true;
 		
 	}
@@ -56,13 +66,15 @@ public:
 	}
 
 	static vec3 calNormal(Vertex::Ptr v0, Vertex::Ptr v1, Vertex::Ptr v2) {
-		return normalize(cross(v2->position - v0->position, v1->position - v0->position));
+		return normalize(cross(v1->position - v0->position, v2->position - v0->position));
 	}
 
 	template <typename... Args>
 	static Triangle::Ptr create(Args... args) {
 		return make_shared<Triangle>(args...);
 	}
+
+	bool hasNorm;
 private:
 	Vertex::Ptr vertices[3];
 	vec3 tri_normal;

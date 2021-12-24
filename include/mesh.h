@@ -56,9 +56,12 @@ public:
 			Triangle::Ptr prt = make_shared<Triangle>(vertices[face.mIndices[0]], vertices[face.mIndices[1]], vertices[face.mIndices[2]], material);
 			// ensure no three point on one line
 			auto v0 = vertices[face.mIndices[0]]->position, v1 = vertices[face.mIndices[1]]->position, v2 = vertices[face.mIndices[2]]->position;
-			if (cross(v2 - v0, v1 - v0).length_squared() < 1e-15) {
+			auto norm = cross(v1 - v0, v2 - v0);
+			if (norm.length_squared() < 1e-15) {
 				continue;
 			}
+			prt->hasNorm = ai_mesh->HasNormals();
+
 			faces.push_back(prt);
 			hit_faces.add(prt);
 		}
@@ -100,7 +103,9 @@ Mesh::Ptr loadModel(std::string path)
 	else {
 		std::cout << path << " OK " << std::endl
 			<< scene->mMeshes[0]->mNumVertices << " vertices\n"
-			<< scene->mMeshes[0]->mNumFaces << " faces\n\n";
+			<< scene->mMeshes[0]->mNumFaces << " faces\n"
+			<< scene->mMeshes[0]->HasNormals() << " normal\n"
+			<< scene->mMeshes[0]->HasTextureCoords(0) << " uv\n\n";
 	}
 
 	auto mesh = make_shared<Mesh>(scene->mMeshes[0]);

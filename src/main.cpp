@@ -221,8 +221,9 @@ void rendering()
 	case 10:
 		world = BVHNode(simple_mesh(), 0, 0);
 		samples_per_pixel = 60;
-		lookfrom = point3(7.2, 1.8, 3.0);
-		lookat = point3(0, 0, -1);
+		//lookfrom = point3(7.5, 1.8, 2.7);
+		lookfrom = point3(6, 1.8, 1.2);
+		lookat = point3(0, 1, 1);
 		vfov = 70.0;
 		aperture = 0;
 		break;
@@ -234,7 +235,15 @@ void rendering()
 		vfov = 90.0;
 		aperture = 0;
 		break;
-
+	case 12:
+		world = BVHNode(simple_mesh2(), 0, 0);
+		samples_per_pixel = 60;
+		lookfrom = point3(7.2, 1.8, 3);
+		//lookfrom = point3(0, 0, 0);
+		lookat = point3(0, 1, -1);
+		vfov = 70.0;
+		aperture = 0;
+		break;
 	}
 	
 	// auto world = random_scene();
