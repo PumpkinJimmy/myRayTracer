@@ -51,6 +51,9 @@ public:
 		output_box = bbox;
 		return true;
 	}
+	void setMaterial(Material::Ptr mat) {
+		mat_ptr = mat;
+	}
 
 	static vec3 calNormal(Vertex::Ptr v0, Vertex::Ptr v1, Vertex::Ptr v2) {
 		return normalize(cross(v2->position - v0->position, v1->position - v0->position));
@@ -77,7 +80,11 @@ private:
 
 		u = dot(tvec, pvec) * det;
 
-		if (u < 0.0 || u > 1.0) {
+		if (isnan(u)){
+			printf("Ray in triangle surface");
+		}
+
+		if (u < 0.0 || u > 1.0 || isnan(u)) {
 			return false;
 		}
 
@@ -85,7 +92,7 @@ private:
 
 		v = dot(r.dir, qvec) * det;
 
-		if (v < 0.0 || (u + v) > 1.0) {
+		if (v < 0.0 || (u + v) > 1.0 || isnan(u)) {
 			return false;
 		}
 

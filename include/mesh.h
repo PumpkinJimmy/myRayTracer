@@ -45,6 +45,7 @@ public:
 				vertex->normal.e[1] = ai_mesh->mNormals[i].y;
 				vertex->normal.e[2] = ai_mesh->mNormals[i].z;
 			}
+			// std::cout << vertex->position << std::endl;
 			vertices.push_back(vertex);
 		}
 
@@ -53,6 +54,11 @@ public:
 		{
 			auto face = ai_mesh->mFaces[i];
 			Triangle::Ptr prt = make_shared<Triangle>(vertices[face.mIndices[0]], vertices[face.mIndices[1]], vertices[face.mIndices[2]], material);
+			// ensure no three point on one line
+			auto v0 = vertices[face.mIndices[0]]->position, v1 = vertices[face.mIndices[1]]->position, v2 = vertices[face.mIndices[2]]->position;
+			if (cross(v2 - v0, v1 - v0).length_squared() < 1e-15) {
+				continue;
+			}
 			faces.push_back(prt);
 			hit_faces.add(prt);
 		}
@@ -65,6 +71,11 @@ public:
 	virtual bool bounding_box(double time0, double time1, AABB& output_box) const {
 		output_box = bbox;
 		return true;
+	}
+	void setMaterial(Material::Ptr mat) {
+		for (auto tri : faces) {
+			tri->setMaterial(mat);
+		}
 	}
 private:
 	std::vector<Vertex::Ptr> vertices;
@@ -80,10 +91,16 @@ Mesh::Ptr loadModel(std::string path)
 	}
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(path,
-		aiProcess_Triangulate | aiProcess_FlipUVs);
+		aiProcess_Triangulate);
+//		aiProcess_Triangulate | aiProcess_FlipUVs);
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
 		std::cerr << "ERROR::Assimp: " << importer.GetErrorString() << std::endl;
 		return make_shared<Mesh>();
+	}
+	else {
+		std::cout << path << " OK " << std::endl
+			<< scene->mMeshes[0]->mNumVertices << " vertices\n"
+			<< scene->mMeshes[0]->mNumFaces << " faces\n\n";
 	}
 
 	auto mesh = make_shared<Mesh>(scene->mMeshes[0]);

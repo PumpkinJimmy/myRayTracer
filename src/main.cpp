@@ -221,8 +221,16 @@ void rendering()
 	case 10:
 		world = BVHNode(simple_mesh(), 0, 0);
 		samples_per_pixel = 60;
-		lookfrom = point3(0, 0, 10);
+		lookfrom = point3(7.2, 1.8, 3.0);
 		lookat = point3(0, 0, -1);
+		vfov = 70.0;
+		aperture = 0;
+		break;
+	case 11:
+		world = BVHNode(bunny(), 0, 0);
+		samples_per_pixel = 60;
+		lookfrom = point3(0, 0.1, 0.2);
+		lookat = point3(0, 0, 0);
 		vfov = 90.0;
 		aperture = 0;
 		break;
@@ -257,7 +265,7 @@ void rendering()
 	
 	
 	for (int s = 0; s < samples_per_pixel; s++) {
-#pragma omp parallel for schedule(dynamic)
+// #pragma omp parallel for schedule(dynamic)
 		for (int j = image_height - 1; j >= 0; j--)
 		{
 			for (int i = 0; i < image_width; i++)
