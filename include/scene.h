@@ -272,7 +272,7 @@ HittableList simple_mesh() {
 	objects.add(mesh);
 
 	auto mesh_floor = loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh011.ply");
-	mesh_floor->setMaterial(Lambertian::create(texture_tiles));
+	mesh_floor->setMaterial(Metal::create(texture_tiles, 0.01));
 	objects.add(mesh_floor);
 
 	auto mesh12 = loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh012.ply");
@@ -284,7 +284,7 @@ HittableList simple_mesh() {
 	objects.add(mesh_wall);
 	auto mesh0 = loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh000.ply");
 	mesh0->setMaterial(Lambertian::create(color(0.893289, 0.893289, 0.893289)));
-	// mesh0->setMaterial(Lambertian::create(color(0.1, 0.1, 0.1)));
+	//mesh0->setMaterial(Lambertian::create(color(1, 1, 1)));
 	objects.add(mesh0);
 	
 
@@ -337,12 +337,11 @@ HittableList bunny() {
 HittableList simple_mesh2() {
 	HittableList objects;
 
-	auto mesh0 = loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh000.ply");
-	mesh0->setMaterial(Lambertian::create(color(0.893289, 0.893289, 0.893289)));
-	objects.add(mesh0);
-	
+	loadScene("E:\\CG_ws\\project\\myRayTracer\\assets\\fireplace_room\\fireplace_room.obj");
 
 	return objects;
 }
+
+
 
 #endif

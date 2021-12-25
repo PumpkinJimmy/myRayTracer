@@ -98,6 +98,7 @@ public:
         u = adjustTexCoord(u);
         v = 1.0 - adjustTexCoord(v);
 
+        // TODO: better sampling
         auto i = static_cast<int>(u * width);
         auto j = static_cast<int>(v * height);
 

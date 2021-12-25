@@ -87,6 +87,30 @@ private:
 	BVHNode hit_node;
 };
 
+
+Mesh::Ptr loadScene(std::string path)
+{
+	if (!fs::is_regular_file(path)) {
+		std::cerr << "ERROR::loadModel: No such file " << path << std::endl;
+	}
+	Assimp::Importer importer;
+	const aiScene* scene = importer.ReadFile(path,
+		aiProcess_Triangulate);
+	//		aiProcess_Triangulate | aiProcess_FlipUVs);
+	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+		std::cerr << "ERROR::Assimp: " << importer.GetErrorString() << std::endl;
+		return make_shared<Mesh>();
+	}
+	else {
+		printf("%d %d %d %d %d\n", scene->HasMeshes(), scene->HasMaterials(), scene->HasTextures(), scene->HasLights(), scene->HasCameras());
+		/*std::cout << path << " OK " << std::endl
+			<< scene->mMeshes[0]->mNumVertices << " vertices\n"
+			<< scene->mMeshes[0]->mNumFaces << " faces\n"
+			<< scene->mMeshes[0]->HasNormals() << " normal\n"
+			<< scene->mMeshes[0]->HasTextureCoords(0) << " uv\n\n";*/
+	}
+}
+
 Mesh::Ptr loadModel(std::string path)
 {
 	if (!fs::is_regular_file(path)) {
