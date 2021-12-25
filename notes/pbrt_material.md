@@ -1,0 +1,2 @@
+- Matte 漫反射材质，基于Albedo + Roughness. Lambertian的进阶版本，考虑粗糙导致的不同视点效果不同，主要用于建模粗糙表面
+- Subtrate 菲尼尔入射模型

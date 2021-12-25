@@ -153,7 +153,7 @@ void rendering()
 	const int image_width = gWidth;
 	const int image_height = gHeight;
 	
-	const int max_depth = 50;
+	const int max_depth = 13;
 
 	int samples_per_pixel = 500;
 	// World
@@ -168,7 +168,7 @@ void rendering()
 	color background(color(0.5, 0.7, 1.0));
 	double vfov = 20.0;
 
-	switch (10) {
+	switch (13) {
 	default:
 	case 0:
 		world = BVHNode(random_scene(), 0, 0);
@@ -223,8 +223,9 @@ void rendering()
 		samples_per_pixel = 60;
 		background = color(1, 1, 1);
 		//lookfrom = point3(7.5, 1.8, 2.7);
-		lookfrom = point3(6, 1.8, 1.2);
-		lookat = point3(0, 1, 1);
+		lookfrom = point3(6.71, 2.55, 2.5);
+		// lookfrom = point3(7.33, -1.65, -0.71);
+		lookat = point3(0, 2.55, -0.78);
 		vfov = 70.0;
 		aperture = 0;
 		break;
@@ -242,6 +243,16 @@ void rendering()
 		lookfrom = point3(7.2, 1.8, 3);
 		//lookfrom = point3(0, 0, 0);
 		lookat = point3(0, 1, -1);
+		vfov = 70.0;
+		aperture = 0;
+		break;
+	case 13:
+		world = BVHNode(final_scene3(), 0, 0);
+		samples_per_pixel = 60;
+		// background = color(0, 0, 0);
+		background = color(1,1,0.8);
+		lookfrom = point3(6.71, 2.55, 2.5);
+		lookat = point3(0, 2.55, -0.78);
 		vfov = 70.0;
 		aperture = 0;
 		break;

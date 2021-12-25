@@ -28,12 +28,7 @@ public:
 		hasNorm = false;
 	}
 	Triangle(const Vertex& v0, const Vertex& v1, const Vertex& v2, Material::Ptr m)
-		: Triangle(shared_ptr<Vertex>(new Vertex(v0)), shared_ptr<Vertex>(new Vertex(v1)), shared_ptr<Vertex>(new Vertex(v2)), m) {
-		//auto pv0 = shared_ptr<Vertex>(new Vertex(v0));
-		//auto pv1 = shared_ptr<Vertex>(new Vertex(v1));
-		//auto pv2 = shared_ptr<Vertex>(new Vertex(v2));
-		//Triangle(pv0, pv1, pv2);
-	}
+		: Triangle(shared_ptr<Vertex>(new Vertex(v0)), shared_ptr<Vertex>(new Vertex(v1)), shared_ptr<Vertex>(new Vertex(v2)), m) {}
 	virtual bool hit(const ray& r, double t_min, double t_max, hit_record& rec) const {
 		double b1, b2;
 		if (!rayIntersect(r, rec.t, b1, b2) || rec.t < t_min || rec.t > t_max) {

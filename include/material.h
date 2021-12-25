@@ -31,6 +31,7 @@ public:
 	virtual bool scatter(
 		const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered
 	) const override {
+		// if (!rec.front_face) return false;
 		auto scatter_direction = rec.normal + random_unit_vector();
 
 		if (scatter_direction.near_zero()) {
@@ -55,6 +56,7 @@ public:
 	virtual bool scatter(
 		const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered
 	) const override {
+		// if (!rec.front_face) return false;
 		vec3 reflected = reflect(unit_vector(r_in.direction()), rec.normal);
 		scattered = ray(rec.p, reflected + fuzz*random_in_unit_sphere());
 		attenuation = albedo->value(rec.u, rec.v, rec.p);

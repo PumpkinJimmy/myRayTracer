@@ -342,6 +342,104 @@ HittableList simple_mesh2() {
 	return objects;
 }
 
+HittableList final_scene3() {
+		HittableList objects;
+		
+
+		const char* paths[] = {
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh000.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh001.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh002.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh003.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh004.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh005.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh006.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh007.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh008.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh009.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh010.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh011.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh012.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh013.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh014.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh015.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh016.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh017.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh018.ply",
+		};
+		auto texture = ImageTexture::create("E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\textures\\wood5.tga");
+		auto texture_tiles = ImageTexture::create("E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\textures\\Tiles.tga");
+		auto texture_wallpaper = ImageTexture::create("E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\textures\\Wallpaper.tga");
+		auto mat_wall = Lambertian::create(color(0.893289, 0.893289, 0.893289));
+		auto mat_lost = Lambertian::create(make_shared<checker_texture>(color(0, 0, 0), color(255, 0, 255)));
+		auto mat_light = make_shared<diffuse_light>(color(1, 1, 1));
+		Mesh::Ptr mesh;
+
+		for (int i = 0; i <= 18; i++) {
+			mesh = loadModel(paths[i]);
+			if (i == 1 || i== 16 || i==17) {
+				mesh->setMaterial(Lambertian::create(texture));
+			}
+			else if (i == 12 || i == 9 || i == 0) {
+				mesh->setMaterial(mat_wall);
+			}
+			else if (i == 11) {
+				mesh->setMaterial(Metal::create(texture_tiles, 0.01));
+			}
+			else if (i == 18) {
+				mesh->setMaterial(Lambertian::create(texture_wallpaper));
+
+			}
+			else if (i == 14) {
+				mesh->setMaterial(Dielectric::create(1.5));
+			}
+			else if (i == 2 || i == 7 || i == 10 || i == 15) {
+				mesh->setMaterial(Metal::create(color(0.9, 0.9, 0.9), 1.0));
+			}
+			else if (i == 13 || i == 3 || i == 4 || i == 6 || i == 8) {
+				mesh->setMaterial(mat_light);
+			}
+			else if (i == 5) {
+				// mesh->setMaterial(Metal::create(color(1,1,1), 0.1));
+				mesh->setMaterial(mat_light);
+			}
+			else {
+				printf("Warning: part #%d no material\n", i);
+				mesh->setMaterial(mat_lost);
+			}
+			objects.add(mesh);
+		}
+
+		
+		//auto spotlight = Sphere::create(point3(2.61, 1.1, -2.8), 0.105, mat_light);
+		//objects.add(spotlight);
+
+		//spotlight = Sphere::create(point3(-0.62, 2.57, -2.8), 0.105, mat_light);
+		//objects.add(spotlight);
+
+		//spotlight = Sphere::create(point3(2.61, 1.1, -2.8), 0.105, mat_light);
+		//objects.add(spotlight);
+
+		//spotlight = Sphere::create(point3(-3.06, 4.16, -2.8), 0.105, mat_light);
+		//objects.add(spotlight);
+
+		//spotlight = Sphere::create(point3(-6.21, 5.79, -2.8), 0.105, mat_light);
+		//objects.add(spotlight);
+
+
+		//auto rectlight = make_shared<xy_rect>(0.18, 0.18 + 0.463*3, 1.42, 1.42 + 0.975*3, 3.3, mat_light);
+		//objects.add(rectlight);
+
+		//auto rectlight2 = make_shared<yz_rect>(1, 1 + 0.463*3, 2, 2 + 0.975*3, -10.6, mat_light);
+		//objects.add(rectlight2);
+
+		//// auto rectlight3 = make_shared<xz_rect>(0.92- 7.8, 0.64 -2.4,0.92 + 7.8, 0.64+2.4,  1, mat_light);
+		//auto rectlight3 = make_shared<xz_rect>(0, 0, 10,10, 1, mat_light);
+		//objects.add(rectlight3);
+
+		return objects;
+}
+
 
 
 #endif
