@@ -18,3 +18,4 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src/ DIR_SRCS)
 ################################
 
 add_executable(${PROJECT_NAME} ${DIR_SRCS} ${HEADERS})
+target_link_libraries(${PROJECT_NAME} glfw3)
