@@ -1,3 +1,0 @@
-- （已修复）**当Progressive Rendering和OpenMP多线程联合使用的时候会由于神秘原因（不均衡的渲染负载+Race Condition?）导致出现莫名其妙的光带渲染和其他渲染错误**。
-- **三角形求交算法数值不稳定**
-- uv load from mesh invalid
