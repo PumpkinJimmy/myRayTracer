@@ -1,34 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <ClCompile Include="E:\CG_ws\project\myRayTracer\cuda\src\glad.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="E:\CG_ws\project\myRayTracer\cuda\include\cudastart.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\camera.cuh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\common.cuh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\cutil_double.cuh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\hittable.cuh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\hittable_list.cuh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\material.cuh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\model.cuh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\ray.cuh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\vec3.cuh">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -41,6 +41,10 @@ public:
 		return *this *= 1 / t;
 	}
 
+	bool operator==(const vec3& other) const {
+		return e[0] == other.e[0] && e[1] == other.e[1] && e[2] == other.e[2];
+	}
+
 	double length() const {
 		return sqrt(length_squared());
 	}
@@ -101,6 +105,14 @@ inline vec3 operator*(const vec3 &v, double t) {
 
 inline vec3 operator/(vec3 v, double t) {
 	return (1 / t) * v;
+}
+
+inline vec3 min(const vec3& u, const vec3& v) {
+	return vec3(std::min(u[0], v[0]), std::min(u[1], v[1]), std::min(u[2], v[2]));
+}
+
+inline vec3 max(const vec3& u, const vec3& v) {
+	return vec3(std::max(u[0], v[0]), std::max(u[1], v[1]), std::max(u[2], v[2]));
 }
 
 inline double dot(const vec3 &u, const vec3 &v) {

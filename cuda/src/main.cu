@@ -4,6 +4,9 @@
 #include <fstream>
 #include <cmath>
 #include <curand_kernel.h>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <iostream>
 #include "cudastart.h"
 #include "vec3.cuh"
 #include "ray.cuh"
@@ -119,8 +122,8 @@ __global__ void initScene() {
 
     // ======= Final Scene =========
 
-    int rcnt = 22;
-    int ccnt = 22;
+    int rcnt = 0;
+    int ccnt = 0;
     sps = new Hittable::Ptr[rcnt * ccnt + 4];
     if (sps == NULL) {
         printf("Mem. Allocate Fail\n");
@@ -213,7 +216,7 @@ __global__ void render(int image_width, int image_height,color* output, int fram
     // radiance
 
     // const int sampleNumber = 100;
-    const int sampleNumber = 500;
+    const int sampleNumber = 1;
     color accumColor{ 0, 0, 0 };
     for (int i = 0; i < sampleNumber; i++) {
         float u = (x + random_real(&randState)) / (image_width - 1);
@@ -230,11 +233,40 @@ __global__ void render(int image_width, int image_height,color* output, int fram
 
 
 
+void processInput(GLFWwindow* window)
+{
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+}
 
 
 //主函数
 int main(int argc,char** argv)
 {
+    // OpenGL初始化
+    
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    GLFWwindow* window = glfwCreateWindow(800, 600, "GLFW", NULL, NULL);
+    if (window == NULL) {
+        std::cout << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
+    glfwMakeContextCurrent(window);
+
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
+        std::cout << "Failed to initialize GLAD" << std::endl;
+        return -1;
+    }
+
+    glViewport(0, 0, 800, 600);
+
+
     //设备初始化
     printf("strating...\n");
     initDevice(0);
@@ -307,6 +339,28 @@ int main(int argc,char** argv)
     cudaFree(output_d);
     free(output_h);
     cudaDeviceReset();
+
+    // OpenGL MainLoop
+    GLuint positionsVBO;
+    cudaGraphicsResource* positionVBO_CUDA;
+    unsigned size = 800 * 600 * 4 * sizeof(float);
+    glBufferData(GL_ARRAY_BUFFER, size, 0, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    
+
+    while (!glfwWindowShouldClose(window))
+    {
+        processInput(window);
+
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+
+    glfwTerminate();
+
     printf("Done\n");
     return 0;
 }

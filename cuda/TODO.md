@@ -1,4 +1,4 @@
-- Shared Memory
-- Progressive Rendering
 - CUDA BVH
+- OpenGL Window & Interactive App
 - *Other Performence Improvement
+- *Shared Memory

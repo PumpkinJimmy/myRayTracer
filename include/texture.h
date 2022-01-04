@@ -85,15 +85,20 @@ public:
     ~ImageTexture() {
         delete data;
     }
+    static double adjustTexCoord(double x) {
+        double f = x - int(x);
+        return f < 0 ? f + 1 : f;
+    }
 
     virtual color value(double u, double v, const vec3& p) const override {
         if (data == nullptr) {
             return color(0, 1, 1);
         }
 
-        u = clamp(u, 0, 1);
-        v = 1.0 - clamp(v, 0, 1);
+        u = adjustTexCoord(u);
+        v = 1.0 - adjustTexCoord(v);
 
+        // TODO: better sampling
         auto i = static_cast<int>(u * width);
         auto j = static_cast<int>(v * height);
 

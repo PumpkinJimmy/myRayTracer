@@ -89,9 +89,7 @@ color ray_color(const ray& r, const color& background, const Hittable& world, in
 
 int main(int argc, char* args[])
 {
-	// loadModel("../../assets/nanosuit/nanosuit.obj");
-	loadModel("E:/CG_ws/project/myRayTracer/assets/nanosuit/nanosuit.obj");
-	// loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh002.ply");
+	
 	// Create window app handle
 	WindowsApp::ptr winApp = WindowsApp::getInstance(gWidth, gHeight, "Ray Tracing");
 	if (winApp == nullptr)
@@ -155,7 +153,7 @@ void rendering()
 	const int image_width = gWidth;
 	const int image_height = gHeight;
 	
-	const int max_depth = 50;
+	const int max_depth = 13;
 
 	int samples_per_pixel = 500;
 	// World
@@ -170,12 +168,16 @@ void rendering()
 	color background(color(0.5, 0.7, 1.0));
 	double vfov = 20.0;
 
-	switch (9) {
+	switch (13) {
 	default:
 	case 0:
 		world = BVHNode(random_scene(), 0, 0);
 		break;
-	
+
+	case 4:
+		world = BVHNode(random_scene_simple(), 0, 0);
+		break;
+
 	case 5:
 		world = BVHNode(simple_light(), 0, 0);
 		background = color(0, 0, 0);
@@ -209,15 +211,51 @@ void rendering()
 		aperture = 0;
 		break;
 	case 9:
-		world = BVHNode(simple_triangle(), 0, 0);
+		world = BVHNode(simple_triangle2(), 0, 0);
 		samples_per_pixel = 200;
 		lookfrom = point3(0, 0, 0);
 		lookat = point3(0, 0, -1);
+		vfov = 70.0;
+		aperture = 0;
+		break;
+	case 10:
+		world = BVHNode(simple_mesh(), 0, 0);
+		samples_per_pixel = 60;
+		background = color(1, 1, 1);
+		//lookfrom = point3(7.5, 1.8, 2.7);
+		lookfrom = point3(6.71, 2.55, 2.5);
+		// lookfrom = point3(7.33, -1.65, -0.71);
+		lookat = point3(0, 2.55, -0.78);
+		vfov = 70.0;
+		aperture = 0;
+		break;
+	case 11:
+		world = BVHNode(bunny(), 0, 0);
+		samples_per_pixel = 60;
+		lookfrom = point3(0, 0.1, 0.2);
+		lookat = point3(0, 0, 0);
 		vfov = 90.0;
 		aperture = 0;
 		break;
-
-
+	case 12:
+		world = BVHNode(simple_mesh2(), 0, 0);
+		samples_per_pixel = 60;
+		lookfrom = point3(7.2, 1.8, 3);
+		//lookfrom = point3(0, 0, 0);
+		lookat = point3(0, 1, -1);
+		vfov = 70.0;
+		aperture = 0;
+		break;
+	case 13:
+		world = BVHNode(final_scene3(), 0, 0);
+		samples_per_pixel = 60;
+		// background = color(0, 0, 0);
+		background = color(1,1,0.8);
+		lookfrom = point3(6.71, 2.55, 2.5);
+		lookat = point3(0, 2.55, -0.78);
+		vfov = 70.0;
+		aperture = 0;
+		break;
 	}
 	
 	// auto world = random_scene();
@@ -248,7 +286,7 @@ void rendering()
 	
 	
 	for (int s = 0; s < samples_per_pixel; s++) {
-// #pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for schedule(dynamic)
 		for (int j = image_height - 1; j >= 0; j--)
 		{
 			for (int i = 0; i < image_width; i++)

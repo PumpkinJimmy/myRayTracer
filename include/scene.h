@@ -12,6 +12,57 @@
 #include "transform.h"
 #include "triangle.h"
 
+
+HittableList random_scene_simple() {
+	auto world = HittableList();
+	auto checker = make_shared<checker_texture>(color(0.2, 0.3, 0.1),
+		color(0.9, 0.9, 0.9));
+	auto solid = make_shared<solid_color>(color(0.5, 0.5, 0.5));
+	auto ground_meterial = Lambertian::create(solid);
+	world.add(Sphere::create(point3(0, -1000, 0), 1000, ground_meterial));
+
+	for (int a = -2; a < 2; a++) {
+		for (int b = -2; b < 2; b++) {
+			auto choose_mat = random_double();
+			point3 center(a + 0.9 * random_double(), 0.2, b + 0.9 * random_double());
+
+			if ((center - point3(4, 0.2, 0)).length() > 0.9) {
+				Material::Ptr sphere_material;
+				if (choose_mat < 0.8) {
+					// diffuse
+					auto albedo = color::random() * color::random();
+					sphere_material = Lambertian::create(albedo);
+					world.add(Sphere::create(center, 0.2, sphere_material));
+				}
+				else if (choose_mat < 0.95) {
+					// metal
+					auto albedo = color::random(0.5, 1);
+					auto fuzz = random_double(0, 0.5);
+					sphere_material = Metal::create(albedo, fuzz);
+					world.add(Sphere::create(center, 0.2, sphere_material));
+				}
+				else {
+					// glass
+					sphere_material = Dielectric::create(1.5);
+					world.add(Sphere::create(center, 0.2, sphere_material));
+				}
+			}
+		}
+	}
+
+	auto material1 = Dielectric::create(1.5);
+	world.add(Sphere::create(point3(0, 1, 0), 1.0, material1));
+
+	auto material2 = Lambertian::create(color(0.4, 0.2, 0.1));
+	world.add(Sphere::create(point3(-4, 1, 0), 1.0, material2));
+
+
+	auto material3 = Metal::create(color(0.7, 0.6, 0.5), 0.0);
+	world.add(Sphere::create(point3(4, 1, 0), 1.0, material3));
+
+	return world;
+}
+
 HittableList random_scene() {
 	auto world = HittableList();
 	auto checker = make_shared<checker_texture>(color(0.2, 0.3, 0.1),
@@ -201,7 +252,7 @@ HittableList simple_triangle() {
 
 HittableList simple_triangle2() {
 	HittableList objects;
-	auto mat = Lambertian::create(make_shared<ImageTexture>("E:/CG_ws/project/myRayTracer/assets/staircase2/textures/Tiles.tga"));
+	auto mat = Lambertian::create(make_shared<ImageTexture>("E:/CG_ws/project/myRayTracer/assets/staircase2/textures/wood5.tga"));
 	Vertex v0{ {0.5, 0, -1}, {0, 0, -1}, {1, 0, 0} };
 	Vertex v1{ {-0.5, 0, -1}, {0, 0, -1}, {0, 0, 0} };
 	Vertex v2{ {0, 0.5, -1}, {0, 0, -1}, {0, 1, 0} };
@@ -209,5 +260,186 @@ HittableList simple_triangle2() {
 	objects.add(tri);
 	return objects;
 }
+
+HittableList simple_mesh() {
+	HittableList objects;
+	auto texture = ImageTexture::create("E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\textures\\wood5.tga");
+	auto texture_tiles = ImageTexture::create("E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\textures\\Tiles.tga");
+	auto texture_wallpaper = ImageTexture::create("E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\textures\\Wallpaper.tga");
+
+	auto mesh = loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh001.ply");
+	mesh->setMaterial(Lambertian::create(texture));
+	objects.add(mesh);
+
+	auto mesh_floor = loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh011.ply");
+	mesh_floor->setMaterial(Metal::create(texture_tiles, 0.01));
+	objects.add(mesh_floor);
+
+	auto mesh12 = loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh012.ply");
+	mesh12->setMaterial(Lambertian::create(color(0.893289, 0.893289, 0.893289)));
+	objects.add(mesh12);
+
+	auto mesh_wall = loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh009.ply");
+	mesh_wall->setMaterial(Lambertian::create(color(0.893289, 0.893289, 0.893289)));
+	objects.add(mesh_wall);
+	auto mesh0 = loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh000.ply");
+	mesh0->setMaterial(Lambertian::create(color(0.893289, 0.893289, 0.893289)));
+	//mesh0->setMaterial(Lambertian::create(color(1, 1, 1)));
+	objects.add(mesh0);
+	
+
+	auto mesh16 = loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh016.ply");
+	mesh16->setMaterial(Lambertian::create(texture));
+	objects.add(mesh16);
+
+	auto mesh17 = loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh017.ply");
+	mesh17->setMaterial(Lambertian::create(texture));
+	objects.add(mesh17);
+
+	auto mesh18 = loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh018.ply");
+	mesh18->setMaterial(Lambertian::create(texture_wallpaper));
+	//mesh18->setMaterial(Lambertian::create(color(255, 0, 255)));
+	objects.add(mesh18);
+
+	auto mesh14 = loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh014.ply");
+	mesh14->setMaterial(Dielectric::create(1.5));
+	//mesh14->setMaterial(Metal::create(color(0.9, 0.9, 0.9), 1.0));
+	objects.add(mesh14);
+
+	auto mesh10 = loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh010.ply");
+	auto mesh15 = loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh015.ply");
+	auto mesh2 = loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh002.ply");
+	auto mesh7 = loadModel("E:/CG_ws/project/myRayTracer/assets/staircase2/models/Mesh007.ply");
+	mesh10->setMaterial(Metal::create(color(0.9, 0.9, 0.9), 1.0));
+	mesh15->setMaterial(Metal::create(color(0.9, 0.9, 0.9), 1.0));
+	mesh2->setMaterial(Metal::create(color(0.9, 0.9, 0.9), 1.0));
+	mesh7->setMaterial(Metal::create(color(0.9, 0.9, 0.9), 1.0));
+	objects.add(mesh10);
+	objects.add(mesh15);
+	objects.add(mesh2);
+	objects.add(mesh7);
+
+	
+	
+
+	return objects;
+}
+
+HittableList bunny() {
+	HittableList objects;
+	auto mesh = loadModel("E:\\CG_ws\\assets\\models\\bunny.tar\\bunny\\reconstruction\\bun_zipper_res3.ply");
+	objects.add(mesh);
+
+	return objects;
+
+}
+
+HittableList simple_mesh2() {
+	HittableList objects;
+
+	loadScene("E:\\CG_ws\\project\\myRayTracer\\assets\\fireplace_room\\fireplace_room.obj");
+
+	return objects;
+}
+
+HittableList final_scene3() {
+		HittableList objects;
+		
+
+		const char* paths[] = {
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh000.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh001.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh002.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh003.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh004.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh005.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh006.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh007.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh008.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh009.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh010.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh011.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh012.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh013.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh014.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh015.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh016.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh017.ply",
+			"E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\models\\Mesh018.ply",
+		};
+		auto texture = ImageTexture::create("E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\textures\\wood5.tga");
+		auto texture_tiles = ImageTexture::create("E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\textures\\Tiles.tga");
+		auto texture_wallpaper = ImageTexture::create("E:\\CG_ws\\project\\myRayTracer\\assets\\staircase2\\textures\\Wallpaper.tga");
+		auto mat_wall = Lambertian::create(color(0.893289, 0.893289, 0.893289));
+		auto mat_lost = Lambertian::create(make_shared<checker_texture>(color(0, 0, 0), color(255, 0, 255)));
+		auto mat_light = make_shared<diffuse_light>(color(1, 1, 1));
+		Mesh::Ptr mesh;
+
+		for (int i = 0; i <= 18; i++) {
+			mesh = loadModel(paths[i]);
+			if (i == 1 || i== 16 || i==17) {
+				mesh->setMaterial(Lambertian::create(texture));
+			}
+			else if (i == 12 || i == 9 || i == 0) {
+				mesh->setMaterial(mat_wall);
+			}
+			else if (i == 11) {
+				mesh->setMaterial(Metal::create(texture_tiles, 0.01));
+			}
+			else if (i == 18) {
+				mesh->setMaterial(Lambertian::create(texture_wallpaper));
+
+			}
+			else if (i == 14) {
+				mesh->setMaterial(Dielectric::create(1.5));
+			}
+			else if (i == 2 || i == 7 || i == 10 || i == 15) {
+				mesh->setMaterial(Metal::create(color(0.9, 0.9, 0.9), 1.0));
+			}
+			else if (i == 13 || i == 3 || i == 4 || i == 6 || i == 8) {
+				mesh->setMaterial(mat_light);
+			}
+			else if (i == 5) {
+				// mesh->setMaterial(Metal::create(color(1,1,1), 0.1));
+				mesh->setMaterial(mat_light);
+			}
+			else {
+				printf("Warning: part #%d no material\n", i);
+				mesh->setMaterial(mat_lost);
+			}
+			objects.add(mesh);
+		}
+
+		
+		//auto spotlight = Sphere::create(point3(2.61, 1.1, -2.8), 0.105, mat_light);
+		//objects.add(spotlight);
+
+		//spotlight = Sphere::create(point3(-0.62, 2.57, -2.8), 0.105, mat_light);
+		//objects.add(spotlight);
+
+		//spotlight = Sphere::create(point3(2.61, 1.1, -2.8), 0.105, mat_light);
+		//objects.add(spotlight);
+
+		//spotlight = Sphere::create(point3(-3.06, 4.16, -2.8), 0.105, mat_light);
+		//objects.add(spotlight);
+
+		//spotlight = Sphere::create(point3(-6.21, 5.79, -2.8), 0.105, mat_light);
+		//objects.add(spotlight);
+
+
+		//auto rectlight = make_shared<xy_rect>(0.18, 0.18 + 0.463*3, 1.42, 1.42 + 0.975*3, 3.3, mat_light);
+		//objects.add(rectlight);
+
+		//auto rectlight2 = make_shared<yz_rect>(1, 1 + 0.463*3, 2, 2 + 0.975*3, -10.6, mat_light);
+		//objects.add(rectlight2);
+
+		//// auto rectlight3 = make_shared<xz_rect>(0.92- 7.8, 0.64 -2.4,0.92 + 7.8, 0.64+2.4,  1, mat_light);
+		//auto rectlight3 = make_shared<xz_rect>(0, 0, 10,10, 1, mat_light);
+		//objects.add(rectlight3);
+
+		return objects;
+}
+
+
 
 #endif
