@@ -40,8 +40,8 @@ public:
 		auto uv = (1 - b1 - b2) * vertices[0]->tex_coord + b1 * vertices[1]->tex_coord + b2 * vertices[2]->tex_coord;
 		rec.u = uv[0]; rec.v = uv[1];
 		if (hasNorm) {
-			rec.set_face_normal(r, tri_normal);
 			rec.normal = (1 - b1 - b2) * vertices[0]->normal + b1 * vertices[1]->normal + b2 * vertices[2]->normal;
+			rec.set_face_normal(r, rec.normal);
 		}
 		else {
 			rec.set_face_normal(r, tri_normal);

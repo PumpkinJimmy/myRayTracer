@@ -377,7 +377,8 @@ HittableList final_scene3() {
 
 		for (int i = 0; i <= 18; i++) {
 			mesh = loadModel(paths[i]);
-			if (i == 1 || i== 16 || i==17) {
+			if (i == 16 || i == 17 || i == 12) continue;
+			if (i == 1 || i== 16 || i==17) {;
 				mesh->setMaterial(Lambertian::create(texture));
 			}
 			else if (i == 12 || i == 9 || i == 0) {
@@ -387,6 +388,7 @@ HittableList final_scene3() {
 				mesh->setMaterial(Metal::create(texture_tiles, 0.01));
 			}
 			else if (i == 18) {
+				continue;
 				mesh->setMaterial(Lambertian::create(texture_wallpaper));
 
 			}
@@ -394,12 +396,15 @@ HittableList final_scene3() {
 				mesh->setMaterial(Dielectric::create(1.5));
 			}
 			else if (i == 2 || i == 7 || i == 10 || i == 15) {
+				continue;
 				mesh->setMaterial(Metal::create(color(0.9, 0.9, 0.9), 1.0));
 			}
 			else if (i == 13 || i == 3 || i == 4 || i == 6 || i == 8) {
+				continue;
 				mesh->setMaterial(mat_light);
 			}
 			else if (i == 5) {
+				continue;
 				// mesh->setMaterial(Metal::create(color(1,1,1), 0.1));
 				mesh->setMaterial(mat_light);
 			}
