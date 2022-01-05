@@ -385,7 +385,9 @@ HittableList final_scene3() {
 				mesh->setMaterial(mat_wall);
 			}
 			else if (i == 11) {
-				mesh->setMaterial(Metal::create(texture_tiles, 0.01));
+				// mesh->setMaterial(Lambertian::create(texture_tiles));
+				mesh->setMaterial(Plastic::create(texture_tiles, 1.5));
+				// mesh->setMaterial(Metal::create(texture_tiles, 0.01));
 			}
 			else if (i == 18) {
 				continue;

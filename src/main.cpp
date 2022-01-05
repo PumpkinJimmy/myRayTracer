@@ -137,7 +137,7 @@ void write_color(int x, int y, color pixel_color)
 	}
 
 	// Note: x -> the column number, y -> the row number
-	//gCanvas[y][x] = clamp_color(pixel_color);
+	// gCanvas[y][x] = clamp_color(pixel_color);
 	gCanvas[y][x] = clamp_color(sqrt(pixel_color));
 }
 
