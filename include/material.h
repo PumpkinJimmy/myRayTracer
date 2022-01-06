@@ -133,4 +133,55 @@ public:
 	shared_ptr<texture> emit;
 };
 
+class Plastic : public Material {
+public:
+
+	Plastic(shared_ptr<texture> tex, double index_of_refraction, double rough=0.01) : albedo(tex), ir(index_of_refraction), roughness(rough){}
+	Plastic(color c, double index_of_refraction, double rough=0.01) : albedo(make_shared<solid_color>(c)), ir(index_of_refraction), roughness(rough) {}
+	template<typename... Args>
+	static Plastic::Ptr create(Args... args) {
+		return make_shared<Plastic>(args...);
+	}
+	virtual bool scatter(
+		const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered
+	) const override {
+		
+		double refraction_ratio = rec.front_face ? (1.0 / ir) : ir;
+
+		vec3 unit_direction = unit_vector(r_in.direction());
+		double cos_theta = fmin(dot(-unit_direction, rec.normal), 1.0);
+		double sin_theta = sqrt(1.0 - cos_theta * cos_theta);
+
+		vec3 direction;
+
+		double R = reflectance(cos_theta, refraction_ratio);
+
+		if (R > random_double()) {
+			direction = reflect(unit_direction, rec.normal) + roughness * random_unit_vector();
+			attenuation = albedo->value(rec.u, rec.v, rec.p);
+		}
+		else {
+			direction = rec.normal + random_unit_vector();
+			attenuation = albedo->value(rec.u, rec.v, rec.p);
+
+		}
+
+		scattered = ray(rec.p, direction);
+		return true;
+	}
+
+
+public:
+	shared_ptr<texture> albedo;
+	double ir;
+	double roughness;
+
+private:
+	static double reflectance(double cosine, double ref_idx) {
+		auto r0 = (1 - ref_idx) / (1 + ref_idx);
+		r0 = r0 * r0;
+		return r0 + (1 - r0) * pow((1 - cosine), 5);
+	}
+};
+
 #endif

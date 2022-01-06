@@ -49,7 +49,7 @@ static char windowTitle[100] = "";
 // The width and height of the screen
 // const auto aspect_ratio = 3.0 / 2.0;
 const auto aspect_ratio = 1.0;
-const int gWidth = 800;
+const int gWidth = 700;
 // const int gWidth = 480;
 //const int gHeight = static_cast<int>(gWidth / aspect_ratio);
 const int gHeight = 800;
@@ -137,7 +137,7 @@ void write_color(int x, int y, color pixel_color)
 	}
 
 	// Note: x -> the column number, y -> the row number
-	//gCanvas[y][x] = clamp_color(pixel_color);
+	// gCanvas[y][x] = clamp_color(pixel_color);
 	gCanvas[y][x] = clamp_color(sqrt(pixel_color));
 }
 
@@ -248,13 +248,20 @@ void rendering()
 		break;
 	case 13:
 		world = BVHNode(final_scene3(), 0, 0);
-		samples_per_pixel = 60;
+		samples_per_pixel = 500;
 		// background = color(0, 0, 0);
 		background = color(1,1,0.8);
-		lookfrom = point3(6.71, 2.55, 2.5);
-		lookat = point3(0, 2.55, -0.78);
+		lookfrom = point3(
+			6.9118194580078125,
+			1.6516278982162476,
+			2.5541365146636963);
+		lookat = point3(2.328019380569458,
+			1.6516276597976685,
+			0.33640459179878235);
 		vfov = 70.0;
 		aperture = 0;
+		break;
+	case 17:
 		break;
 	}
 	
